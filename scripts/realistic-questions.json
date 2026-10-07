@@ -1,0 +1,22 @@
+[
+  {"group": "outlier", "question": "เดือนนี้มี outlier อะไรบ้าง"},
+  {"group": "outlier", "question": "มีออเดอร์ไหนยอดสูงผิดปกติในเดือน พ.ย. 2017 บ้าง"},
+  {"group": "outlier", "question": "วันไหนในปี 2017 ที่ยอดขายพุ่งผิดปกติ"},
+  {"group": "outlier", "question": "สินค้าตัวไหนค่าส่งแพงผิดปกติเมื่อเทียบกับราคา"},
+  {"group": "outlier", "question": "รัฐไหนส่งของช้าผิดปกติ"},
+  {"group": "trend", "question": "ยอดขายเดือนนี้เทียบกับเดือนที่แล้วเป็นยังไง"},
+  {"group": "trend", "question": "ยอดขายรายเดือนปี 2018"},
+  {"group": "trend", "question": "หมวดสินค้าไหนโตเร็วที่สุด"},
+  {"group": "trend", "question": "ค่าเฉลี่ยยอดต่อออเดอร์แยกรายเดือน"},
+  {"group": "ranking", "question": "10 อันดับหมวดสินค้าที่ขายดีที่สุดปี 2017"},
+  {"group": "ranking", "question": "ผู้ขายรายไหนทำยอดขายสูงสุด"},
+  {"group": "ranking", "question": "รัฐไหนมีลูกค้ามากที่สุด"},
+  {"group": "ranking", "question": "สินค้าที่แพงที่สุด 5 อันดับ"},
+  {"group": "operations", "question": "ออเดอร์ที่ส่งช้ากว่ากำหนดมีกี่รายการ"},
+  {"group": "operations", "question": "เวลาส่งของเฉลี่ยของแต่ละรัฐ"},
+  {"group": "operations", "question": "ออเดอร์ที่ถูกยกเลิกในปี 2018 มีกี่รายการ"},
+  {"group": "customer", "question": "ลูกค้าที่จ่ายด้วย boleto มีกี่คน"},
+  {"group": "customer", "question": "คะแนนรีวิวเฉลี่ยของแต่ละหมวดสินค้า"},
+  {"group": "customer", "question": "รีวิว 1 ดาวมีกี่รายการ"},
+  {"group": "event", "question": "ยอดขายวันที่ 2017-11-24 เท่าไหร่"}
+]

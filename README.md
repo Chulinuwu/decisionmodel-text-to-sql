@@ -1,0 +1,54 @@
+Runnable local experimental text-to-SQL application over the real Kaggle Olist Brazilian ecommerce dataset. Cloudflare Clef Flash, through the OpenRouter Decisions API, scores a small set of independent questions about a user question and then ranks complete candidate query plans. A deterministic compiler validates each plan and produces parameterized PostgreSQL SELECT SQL. The web app displays actual results, SQL, parameters, the chosen interpretation, alternatives and decision probabilities.
+
+Requires Node 22+, Python 3 and Docker. Preserve the existing `.env` and provide `OPENROUTER_KEY` there. Never expose the key to the browser.
+
+```sh
+npm install
+npm run setup
+npm start
+```
+
+Open [http://localhost:4317](http://localhost:4317). PostgreSQL binds 127.0.0.1:5547. `npm run setup` starts this project's database, downloads the dataset, imports it and builds the UI. `docker compose stop` stops this project's database while retaining its volume. `docker compose down -v` deletes this project's database data. Other containers are untouched.
+
+The data is historical, from 2016-2018. The UI shows the actual minimum/maximum purchase date. All nine source CSVs are imported: 99,441 orders, 112,650 items, 99,441 customer address identities, 32,951 products, 3,095 sellers, 103,886 payments, 99,224 reviews, 1,000,163 geolocation observations and 71 category translations. The ZIP SHA256 is `967e41e04fc306fe604e2a693f488995a8b41e5047418f8a5c8e4abd6deca784`. Source and checksum are recorded in `data/download.json` and the database import manifest. Downloaded data is ignored by Git.
+
+The application introspects real typed columns on nine analytics relations, attaches explicit business meanings and declared unique many-to-one join paths, and exposes that schema in the UI. Orders and items are materialized at their documented grains. Order item totals, payments and review means are preaggregated before combining them. Other relations expose typed source fields including product dimensions, seller geography, payment types/installments and raw review records. Postal prefixes and identifiers remain text.
+
+The AST supports details or COUNT/SUM/AVG/MIN/MAX, COUNT DISTINCT, calendar buckets, up to 6 selected expressions, 2 grouping dimensions, 4 predicates joined by a single AND or OR, 3 declared joins, one sort expression, and a 1-100 row limit. Predicate operators include strict comparisons, equality, case-insensitive contains, membership (`in` / `not_in` over 2-10 literals), NULL tests without a value, and half-open calendar periods. Literals come from exact question spans, validated date/number transformations, or bounded actual enum values, and the compiler re-checks that provenance against the question for every plan it compiles.
+
+Revenue means item price in BRL excluding freight, with all statuses included unless explicitly filtered. It is not net revenue after refunds or discounts, which are absent from this source. Distinct buyers use `customer_unique_id`; order-linked `customer_id` is a different identity. Orders can have multiple items, payments and reviews. SUM/AVG of a parent-owned measure from child grain is rejected to avoid duplicate aggregation; raw review averages use review-row grain. Grouped DISTINCT counts are not additive. Geolocation postal-prefix joins are unavailable because target rows are not unique. Relative date windows, repeat-purchase intervals, year-over-year ratios, HAVING, subqueries, window functions, generated explanations and data modification are outside the planner grammar.
+
+Only `cloudflare/clef-flash` at `POST https://openrouter.ai/api/alpha/decisions` is used. Responses must identify Cloudflare and have zero output tokens. There is no chat completion or generative fallback. The raw user question is the decision state. State is capped at 2,600 bytes, payloads at 32,000 bytes, choices at 255 and total query time at 150 seconds. Each API call has a 45 second timeout. Model failure can still consume input tokens; retries are manual.
+
+Planning pipeline (`server/planning/`):
+
+1. Semantic catalog. Measures (counts, numeric measures such as item revenue or review score, and detail lists per entity), categorical and date dimensions, and date anchors are built from the introspected schema plus curated Thai/English labels. Each measure has one or more realizations; code picks the root relation that reaches every dimension and filter, so equivalent options such as counting orders from `orders` or from `items` are never offered twice.
+2. Slots. Code extracts grounded literals deterministically: years (including Buddhist years), months, ISO days, numbers, dataset enum values with token boundaries, and quoted strings.
+3. One batched decision call asks independent questions together: target measure, operation, up to two groupings, order, limit, the binding of each slot (field and operator) and missing-value tests. Detail-list targets add one more call for display columns and sort field.
+4. Beam. Options with probability of at least 0.12 (at most 3 per question) are combined best-first into complete plans. Same-field enum values merge into `in` / `not_in`. Each plan must compile and cover every grounded literal; duplicates by SQL and parameters are dropped. At most 6 candidates remain.
+5. Rank call. Clef ranks the complete candidates, described in compact English, plus a none option. A top candidate at 0.55 or above is answered directly with the others listed as alternatives; a confident none, or no valid candidate, returns unsupported; otherwise the user chooses.
+
+A query therefore costs 2 decision calls, or 3 for detail lists. No single low-probability decision aborts the query. Probabilities are model scores, not calibrated correctness guarantees, and cross-field OR conditions are not generated.
+
+Responses are `ok`, `choose` or `unsupported`. `ok` shows the interpretation as labeled parts (measure, grouping, conditions, order, row count) and a short list of other interpretations. `choose` lists every candidate interpretation with its parts and probability. The server keeps the candidate interpretations of each answer in a bounded in-memory offer store (200 offers, 30 minute TTL, oldest evicted first) and returns an `offerId`. Selecting an interpretation posts `{offerId, interpretationId}` to `POST /api/execute`; the server recompiles the stored plan against the stored question, runs it read-only and returns `ok` with the other interpretations of the same offer as alternatives, without calling the model. The browser never sends a plan, so it cannot bypass literal provenance or the semantic catalog. Offers are lost on restart; an expired offer returns 404 and the question must be asked again. `unsupported` shows what was understood and why it cannot be answered.
+
+Live evaluation compares each answer against independent raw-source SQL. Columns are matched by value, not by name: every gold column must map to exactly one response column, row order is compared only for cases marked `ordered`, numerics are rounded to 7 decimals and midnight timestamps compare equal to dates. Outcomes are `accepted_correct`, `accepted_wrong`, `choose_contains_correct`, `choose_missing_correct`, `refused_expected`, `refused_supported` and `error`; for `choose`, every interpretation is run through the same offer/execute path as the UI and the matching index is recorded, along with the number of decision calls per case. `--cases <file.json>` runs a JSON array of `{question, gold, ordered?}` instead of the built-in cases; reports are named `test-results/live-<suite>-<timestamp>.json`.
+
+Latest run (2 decision calls per question, 3 when a list target is plausible). Built-in 20 cases (`test-results/live-default-1791346182655.json`): 16 answerable, 10 answered correctly, 4 offered a choice that included the correct reading, 2 answered wrong; 4 of 4 unanswerable refused. A held-out set of 17 questions written before the round-2 fixes and never shown during tuning (14 answerable): 7 answered correctly, 6 offered a choice including the correct reading, 1 choice missing the correct reading, 0 wrong; 3 of 3 refused. Three held-out cases first failed with provider HTTP 429 and were rerun individually. The previous sequential planner scored 3 correct, 1 wrong and 11 clarifications on the first 15 answerable built-in cases. Known wrong readings: item freight filter read as whole-order freight, and the Thai counter word "รายการ" in "มีคำสั่งซื้อทั้งหมดกี่รายการ" read as order items.
+
+The server binds localhost, rejects foreign Host/Origin and accepts strict JSON request schemas. Each database query runs with SELECT-only `analyst` credentials inside a read-only transaction, a 5 second statement timeout and at most 101 retrieved rows (one extra to identify truncation). Raw tables and writes are denied. `/api/query` and `/api/execute` share one guard (Host/Origin, JSON content type, 4 kB body, strict schema, client-abort cancellation) and a combined concurrency cap of 2. Timeouts return 504, provider failures 502, invalid or expired selections 400/404, all as short JSON errors without stack traces. Secrets stay server-side and routine errors exclude provider response bodies/stack traces.
+
+Downloads use resumable partial files when supported, ZIP integrity checks, bounded retries and atomic rename. Imports use CSV COPY in one transaction with an advisory lock, checksum/source-definition idempotency, row-count/financial conservation checks and target-key uniqueness. Failure rolls back the previous snapshot. Live evaluation writes an atomic checkpoint after every case, records source-code fingerprint/planned/completed cases and continues after per-case API failures.
+
+```sh
+npm test
+npm run typecheck
+npm run build
+npm run test:live
+npm run test:live -- --offset 5 --limit 1
+npm run test:live -- --cases path/to/cases.json
+```
+
+`npm test` runs the backend tests in `tests/` and the web tests under `web/`, including HTTP-level checks of the guards and the offer/execute path against the local database. Deterministic checks cover compiler identifier/type/provenance boundaries, independent raw PostgreSQL comparisons, rollback-only adversarial fixtures for customer identity/fanout/threshold/date/OR semantics, quote-aware lexical boundaries, repeated literal spans and database privilege enforcement. These checks establish compiler/data behavior; they do not measure natural-language interpretation accuracy. `npm run test:live` makes paid decision requests and stores sanitized reports under ignored `test-results/`.
+
+Sources: [Kaggle Olist dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), licensed CC BY-NC-SA 4.0; [Clef Flash model](https://openrouter.ai/cloudflare/clef-flash); [OpenRouter Decisions API](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request).

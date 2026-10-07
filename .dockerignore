@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+.git
+.omc
+.skillloom
+.lean-ctx
+.diagram-design
+node_modules
+data
+dist
+test-results
+server.log
+docs

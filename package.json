@@ -1,0 +1,36 @@
+{
+  "name": "decisionmodel-text-to-sql",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file=.env --import tsx server/index.ts",
+    "build": "tsc --noEmit && vite build",
+    "start": "node --env-file=.env --import tsx server/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test 'tests/*.test.ts' 'web/**/*.test.ts' 'web/**/*.test.tsx'",
+    "test:live": "node --env-file=.env --import tsx scripts/check-live.ts",
+    "data:download": "python3 scripts/download.py",
+    "data:import": "node --env-file=.env --import tsx scripts/import.ts",
+    "db:up": "docker compose up -d --wait",
+    "setup": "npm run db:up && npm run data:download && npm run data:import && npm run build"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "pg-copy-streams": "^7.0.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.18.6",
+    "@types/pg": "^8.15.5",
+    "@types/pg-copy-streams": "^1.2.5",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9"
+  }
+}

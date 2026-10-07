@@ -1,0 +1,11 @@
+.env
+node_modules/
+data/
+dist/
+.lean-ctx/
+server.log
+test-results/
+__pycache__/
+*.pyc
+.omc/
+.skillloom/

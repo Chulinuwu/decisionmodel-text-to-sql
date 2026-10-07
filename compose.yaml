@@ -1,0 +1,53 @@
+name: decision-sql-local
+
+x-database-env: &database-env
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_IMPORTER_PASSWORD: ${DB_IMPORTER_PASSWORD:-local-import-only}
+  DB_ANALYST_PASSWORD: ${DB_ANALYST_PASSWORD:-local-read-only}
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: importer
+      POSTGRES_PASSWORD: ${DB_IMPORTER_PASSWORD:-local-import-only}
+      POSTGRES_DB: olist
+    ports:
+      - "127.0.0.1:${DB_PUBLISH_PORT:-5547}:5432"
+    volumes:
+      - olist-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U importer -d olist"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  setup:
+    build: .
+    command: ["sh", "-c", "python3 scripts/download.py && node --import tsx scripts/import.ts"]
+    environment: *database-env
+    volumes:
+      - olist-raw:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build: .
+    environment:
+      <<: *database-env
+      OPENROUTER_KEY: ${OPENROUTER_KEY:?Set OPENROUTER_KEY in .env or the host environment}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
+    ports:
+      - "${APP_PORT:-4317}:4317"
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  olist-data:
+  olist-raw:
