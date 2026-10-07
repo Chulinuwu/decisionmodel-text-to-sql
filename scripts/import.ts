@@ -14,6 +14,7 @@ try {
   const importChecksum = createHash('sha256').update(manifest.sha256).update(await readFile('scripts/analytics.sql')).digest('hex');
   await client.query('BEGIN');
   await client.query('SELECT pg_advisory_xact_lock(68413972)');
+  await syncAnalystRole();
   const existing = await client.query("SELECT to_regclass('analytics.import_manifest') present");
   if (existing.rows[0].present) {
     const same = await client.query('SELECT count(*)::int n FROM analytics.import_manifest WHERE checksum = $1', [importChecksum]);
@@ -45,9 +46,17 @@ async function importDataset(checksum: string) {
     console.log(`${name}: ${count} rows`);
   }
   await client.query(await readFile('scripts/analytics.sql', 'utf8'));
-  await client.query("DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='analyst') THEN CREATE ROLE analyst LOGIN PASSWORD 'local-read-only'; END IF; END $$; ALTER ROLE analyst SET default_transaction_read_only = on; REVOKE ALL ON SCHEMA raw FROM PUBLIC, analyst; REVOKE ALL ON SCHEMA analytics FROM PUBLIC; REVOKE CREATE ON SCHEMA public FROM PUBLIC; GRANT USAGE ON SCHEMA analytics TO analyst; GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO analyst");
+  await client.query("ALTER ROLE analyst SET default_transaction_read_only = on; REVOKE ALL ON SCHEMA raw FROM PUBLIC, analyst; REVOKE ALL ON SCHEMA analytics FROM PUBLIC; REVOKE CREATE ON SCHEMA public FROM PUBLIC; GRANT USAGE ON SCHEMA analytics TO analyst; GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO analyst");
   const checks = await client.query('SELECT (SELECT count(*) FROM analytics.orders)::int orders, (SELECT count(*) FROM analytics.items)::int items, (SELECT count(*) FROM raw.orders) = (SELECT count(*) FROM analytics.orders) orders_match, (SELECT count(*) FROM raw.items) = (SELECT count(*) FROM analytics.items) items_match, (SELECT sum(price::numeric) FROM raw.items) = (SELECT sum(revenue) FROM analytics.orders) revenue_matches, (SELECT sum(payment_value::numeric) FROM raw.payments) = (SELECT sum(payment_total) FROM analytics.orders) payments_match');
   if (!checks.rows[0].orders_match || !checks.rows[0].items_match || !checks.rows[0].revenue_matches || !checks.rows[0].payments_match) throw new Error('Aggregate consistency check failed');
   await client.query('COMMIT');
   console.log('Import committed. ' + JSON.stringify(checks.rows[0]));
+}
+
+// Runs on every import, including no-op re-imports, so a changed DB_ANALYST_PASSWORD always reaches the role.
+// Role DDL cannot take bind parameters, hence escapeLiteral.
+async function syncAnalystRole() {
+  const { rows } = await client.query('SELECT 1 FROM pg_roles WHERE rolname = $1', [config.analyst.user]);
+  const password = client.escapeLiteral(config.analyst.password);
+  await client.query(`${rows.length ? 'ALTER' : 'CREATE'} ROLE ${client.escapeIdentifier(config.analyst.user)} WITH LOGIN PASSWORD ${password}`);
 }

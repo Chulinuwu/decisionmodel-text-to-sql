@@ -20,7 +20,6 @@ Recorded 2026-10-07. Evidence comes from the live reports under `test-results/` 
 ## Engineering notes
 
 - Offers (interpretations a user can click) live in memory for 30 minutes and are lost on server restart.
-- The "more rows than shown" note also appears when the user explicitly asked for a top-N.
 - The importer password is fixed when the Postgres volume is first created; changing `DB_IMPORTER_PASSWORD` later does not change an existing volume.
 
 ## Proposed next experiments (in order)

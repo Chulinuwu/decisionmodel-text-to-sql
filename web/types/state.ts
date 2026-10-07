@@ -22,5 +22,6 @@ export type UnsupportedResponse = Extract<QueryResponse, { status: 'unsupported'
 export type ExecuteInterpretation = (interpretation: Interpretation) => void;
 export type ExecuteOffer = (offerId: string, interpretation: Interpretation) => void;
 
-export type ChartPoint = { label: string; value: number };
+// compare is the previous-period value for period_change charts; highlight marks anomaly outliers.
+export type ChartPoint = { label: string; value: number; compare: number | null; highlight: boolean };
 export type ChartData = { title: string; points: ChartPoint[] };

@@ -1,6 +1,7 @@
+import { defaultRowLimits } from '../../shared/limits.js';
 import type { AnomalyPlan, Expression, Predicate } from '../../shared/query-schema.js';
 import { relativeLiteral } from '../compile/relative-periods.js';
-import { anomalyRules, recordKeys } from '../compile/analysis-config.js';
+import { recordKeys } from '../compile/analysis-config.js';
 import type { BuildContext, Combo, Measure, PlanParts } from './planning.types.js';
 import { measureExpression, purchaseField } from './plan-parts.js';
 import { anomalyDirections } from './catalog-config.js';
@@ -38,5 +39,5 @@ export function buildAnomaly(ctx: BuildContext, measure: Measure, realization: n
   const predicates = population(ctx, parts, shape.unit);
   if (predicates.length > planningLimits.maxPredicates) return null;
   const direction = isDirection(combo.anomaly_direction) ? combo.anomaly_direction : 'both';
-  return { kind: 'anomaly', from: parts.resolver.root, joins: [], where: { connector: 'and', predicates }, ...shape, direction, limit: parts.limitChosen ? parts.limit : anomalyRules.defaultLimit };
+  return { kind: 'anomaly', from: parts.resolver.root, joins: [], where: { connector: 'and', predicates }, ...shape, direction, limit: parts.limitChosen ? parts.limit : defaultRowLimits.anomaly };
 }

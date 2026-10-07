@@ -2,7 +2,7 @@ import type { Expression, Field, Plan, Predicate, SelectPlan } from '../../share
 import { expressionKey } from '../expression.js';
 import { granularity } from '../compile/relative-periods.js';
 import type { DateUnit } from './planning.types.js';
-import { planningLimits } from './planning-limits.js';
+import { defaultRowLimits } from '../../shared/limits.js';
 
 const unitRank: Record<DateUnit, number> = { day: 0, month: 1, year: 2 };
 const sameField = (a: Field, b: Field) => a.relation === b.relation && a.column === b.column;
@@ -29,7 +29,7 @@ function normalizeSelect(plan: SelectPlan, predicates: Predicate[]): SelectPlan 
   const select = plan.select.filter(expression => !removed.has(expressionKey(expression)));
   const orderBy = plan.orderBy && !removed.has(expressionKey(plan.orderBy.expression)) ? plan.orderBy : null;
   const where = { ...plan.where, predicates };
-  if (select.some(expression => expression.kind === 'aggregate') && !groupBy.length) return { ...plan, select, where, groupBy, orderBy: null, limit: planningLimits.defaultLimit };
+  if (select.some(expression => expression.kind === 'aggregate') && !groupBy.length) return { ...plan, select, where, groupBy, orderBy: null, limit: defaultRowLimits.select };
   return { ...plan, select, where, groupBy, orderBy };
 }
 
@@ -38,14 +38,14 @@ export function normalizePlan(plan: Plan): Plan {
   const predicates = plan.where.predicates.filter(predicate => !isRedundant(predicate, plan.where.predicates));
   if (plan.kind === 'select') return normalizeSelect(plan, predicates);
   const where = { ...plan.where, predicates };
-  if (plan.kind === 'period_change' && !plan.groupBy.length) return { ...plan, where, orderBy: null, limit: planningLimits.defaultLimit };
+  if (plan.kind === 'period_change' && !plan.groupBy.length) return { ...plan, where, orderBy: null, limit: defaultRowLimits.period_change };
   return { ...plan, where };
 }
 
 // A multi-row result cut below the default without an ordering keeps an arbitrary subset ("top 1" alphabetically).
 export function isArbitraryTruncation(plan: Plan) {
   if (plan.kind === 'anomaly') return false;
-  if (plan.kind === 'period_change') return plan.groupBy.length > 0 && plan.limit < planningLimits.defaultLimit && plan.orderBy === null;
+  if (plan.kind === 'period_change') return plan.groupBy.length > 0 && plan.limit < defaultRowLimits.period_change && plan.orderBy === null;
   const aggregate = plan.select.some(expression => expression.kind === 'aggregate');
-  return (!aggregate || plan.groupBy.length > 0) && plan.limit < planningLimits.defaultLimit && plan.orderBy === null;
+  return (!aggregate || plan.groupBy.length > 0) && plan.limit < defaultRowLimits.select && plan.orderBy === null;
 }

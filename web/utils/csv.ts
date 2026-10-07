@@ -1,7 +1,8 @@
+import type { ResultCell } from '../../shared/schema';
 import { numericValue } from './format';
 
-export function toCsv(columns: string[], rows: Record<string, string | number | null>[]): string {
-  const escape = (value: string | number | null) => {
+export function toCsv(columns: string[], rows: Record<string, ResultCell>[]): string {
+  const escape = (value: ResultCell) => {
     let text = value === null ? '' : String(value);
     if (numericValue(value) === null && /^\s*[=+\-@]/.test(text)) text = `'${text}`;
     return `"${text.replaceAll('"', '""')}"`;
@@ -9,7 +10,7 @@ export function toCsv(columns: string[], rows: Record<string, string | number | 
   return [columns.map(escape).join(','), ...rows.map(row => columns.map(column => escape(row[column] ?? null)).join(','))].join('\r\n');
 }
 
-export function downloadCsv(columns: string[], rows: Record<string, string | number | null>[]) {
+export function downloadCsv(columns: string[], rows: Record<string, ResultCell>[]) {
   const url = URL.createObjectURL(new Blob(['\uFEFF', toCsv(columns, rows)], { type: 'text/csv;charset=utf-8;' }));
   const link = document.createElement('a');
   link.href = url;

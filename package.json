@@ -3,15 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --env-file=.env --import tsx server/index.ts",
+    "dev": "node --env-file-if-exists=.env --import tsx server/index.ts",
     "build": "tsc --noEmit && vite build",
-    "start": "node --env-file=.env --import tsx server/index.ts",
+    "start": "node --env-file-if-exists=.env --import tsx server/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test 'tests/*.test.ts' 'web/**/*.test.ts' 'web/**/*.test.tsx'",
-    "test:live": "node --env-file=.env --import tsx scripts/check-live.ts",
+    "test:live": "node --env-file-if-exists=.env --import tsx scripts/check-live.ts",
     "data:download": "python3 scripts/download.py",
-    "data:import": "node --env-file=.env --import tsx scripts/import.ts",
-    "db:up": "docker compose up -d --wait",
+    "data:import": "node --env-file-if-exists=.env --import tsx scripts/import.ts",
+    "db:up": "docker compose up -d --wait postgres",
     "setup": "npm run db:up && npm run data:download && npm run data:import && npm run build"
   },
   "dependencies": {

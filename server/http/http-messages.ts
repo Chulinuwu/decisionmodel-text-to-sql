@@ -1,5 +1,5 @@
 export const httpMessages = {
-  localhostOnly: 'Localhost access only',
+  hostNotAllowed: 'Host not allowed',
   foreignOrigin: 'Foreign origin rejected',
   jsonRequired: 'JSON required',
   invalidBody: 'รูปแบบคำขอไม่ถูกต้องหรือใหญ่เกินกำหนดค่ะ',

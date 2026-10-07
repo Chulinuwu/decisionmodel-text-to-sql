@@ -37,7 +37,10 @@ code { font-size: .9em; }
 .dataset-count { display: flex; align-items: baseline; gap: 9px; }
 .dataset-count strong { font-size: 27px; font-weight: 500; letter-spacing: -1px; }
 .dataset-count span { font-size: 11px; color: var(--text-soft); }
-.date-range { font-size: 10px; color: var(--text-soft); margin: 9px 0 29px; }
+.date-range { font-size: 10px; color: var(--text-soft); margin: 9px 0 6px; }
+.coverage-window { font-size: 10px; color: var(--ink-subtle); margin: 0 0 29px; line-height: 1.6; }
+.coverage-window strong { font-weight: 600; margin-right: 4px; }
+.coverage-window span { margin: 0 4px; color: var(--text-soft); }
 .date-range span { margin: 0 4px; }
 .schema-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .schema-heading h3 { font-size: 12px; font-weight: 500; }
@@ -130,6 +133,9 @@ td, th { padding: 13px 17px; white-space: nowrap; }
 td { color: var(--ink); border-bottom: 1px solid var(--border); }
 tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover { background: var(--surface-hover); }
+.outlier-row td { background: var(--warning-soft); }
+.outlier-row td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
+.anomaly-note { margin: 0; padding: 12px 17px; font-size: 12px; line-height: 1.8; color: var(--ink-subtle); background: var(--accent-soft); border-bottom: 1px solid var(--border); }
 .index-cell { color: var(--text-soft); width: 40px; font-size: 10px; text-align: right; padding-right: 5px; }
 .null-value { color: var(--text-soft); font-size: 10px; font-style: italic; }
 .table-footer { border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 10px; padding: 13px 17px; color: var(--text-soft); font-size: 9px; line-height: 1.7; }
@@ -166,7 +172,10 @@ tbody tr:hover { background: var(--surface-hover); }
 .bar-chart { padding: 0; margin: 25px 0 6px; list-style: none; }
 .bar-chart li { display: grid; grid-template-columns: 140px minmax(0, 1fr) 100px; align-items: center; gap: 15px; margin: 14px 0; font-size: 11px; }
 .bar-label { color: var(--ink-subtle); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-.bar-track { height: 20px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; }
+.bar-track { position: relative; height: 20px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; }
+.bar-compare { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--accent-border); }
+.bar-chart li.highlight .bar-fill { background: var(--warning); }
+.bar-chart li.highlight .bar-label { color: var(--warning); font-weight: 600; }
 .bar-fill { height: 100%; background: var(--accent); border-radius: 2px; }
 .bar-value { color: var(--ink-subtle); font-size: 10px; text-align: right; }
 .empty-result { text-align: center; padding: 50px 20px; }

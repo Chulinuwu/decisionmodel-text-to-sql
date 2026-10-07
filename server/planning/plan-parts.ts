@@ -1,3 +1,4 @@
+import { defaultRowLimits } from '../../shared/limits.js';
 import type { Expression, Field, Predicate, RelationName } from '../../shared/query-schema.js';
 import type { BuildContext, Combo, Dimension, Measure, NumberUse, Operation, PlanParts, RelativeChoice, Resolver, ShapeSpace } from './planning.types.js';
 import { resolverFor } from './field-resolution.js';
@@ -72,5 +73,5 @@ export function planParts(ctx: BuildContext, root: RelationName, combo: Combo): 
   const limit = resolveLimit(ctx.space, combo.limit, slots.numberUses);
   if (limit === undefined) return null;
   const relative = isRelative(combo.relative_period) ? combo.relative_period : null;
-  return { resolver, groups, predicates, limit: limit ?? planningLimits.defaultLimit, limitChosen: limit !== null, relative };
+  return { resolver, groups, predicates, limit: limit ?? defaultRowLimits.select, limitChosen: limit !== null, relative };
 }

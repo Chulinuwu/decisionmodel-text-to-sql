@@ -6,7 +6,7 @@ import { databaseSchema } from './schema-client.js';
 pg.types.setTypeParser(1082, value => value);
 pg.types.setTypeParser(1114, value => value);
 
-export const pool = new pg.Pool({ host: config.dbHost, port: config.dbPort, database: config.database, user: 'analyst', password: 'local-read-only', max: 4, connectionTimeoutMillis: 3000 });
+export const pool = new pg.Pool({ host: config.dbHost, port: config.dbPort, database: config.database, ...config.analyst, max: 4, connectionTimeoutMillis: 3000 });
 
 export async function execute(sql: string, values: (string | number)[]) {
   const client = await pool.connect();

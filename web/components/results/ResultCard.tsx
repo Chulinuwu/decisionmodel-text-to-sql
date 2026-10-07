@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { numberLocale } from '../../config/labels';
 import { resultChartData } from '../../utils/chart-data';
+import { anomalyWithoutOutliers, cappedByDefault } from '../../utils/result-summary';
+import { AnomalyNote } from './AnomalyNote';
 import { downloadCsv } from '../../utils/csv';
 import { Icon } from '../layout/Icon';
 import { ResultChart } from './ResultChart';
@@ -18,11 +20,12 @@ export function ResultCard({ response, question }: ResultCardProps) {
       </div>
       <div className="result-actions"><span>{response.rows.length.toLocaleString(numberLocale)} แถว · {response.columns.length} คอลัมน์</span><button className="secondary-button" onClick={() => downloadCsv(response.columns, response.rows)} disabled={!response.rows.length}><Icon name="download" /><span>CSV</span></button></div>
     </div>
+    {anomalyWithoutOutliers(response) && <AnomalyNote />}
     {response.rows.length === 0
       ? <div className="empty-result"><h3>ไม่พบข้อมูลตามเงื่อนไขนี้</h3><p>ลองขยายช่วงเวลา หรือปรับเงื่อนไขในคำถาม</p></div>
       : view === 'chart' && chart
         ? <ResultChart data={chart} />
         : <ResultTable response={response} question={question} />}
-    <div className="table-footer"><span>{response.truncated ? 'มีข้อมูลมากกว่าที่แสดง ผลลัพธ์ถูกจำกัดตามจำนวนแถวของคำค้น' : 'แสดงผลลัพธ์ทั้งหมดที่คำค้นคืนมา'}</span><span>PostgreSQL</span></div>
+    <div className="table-footer"><span>{cappedByDefault(response) ? 'มีข้อมูลมากกว่าที่แสดง ผลลัพธ์ถูกจำกัดตามจำนวนแถวสูงสุดของระบบ' : response.truncated ? `แสดง ${response.plan.limit} แถวตามที่ขอ` : 'แสดงผลลัพธ์ทั้งหมดที่คำค้นคืนมา'}</span><span>PostgreSQL</span></div>
   </div>;
 }

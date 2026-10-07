@@ -1,6 +1,6 @@
 // Fixed analysis semantics. Modified z-score after Iglewicz and Hoaglin (1993): 0.6745 rescales MAD to a normal
 // standard deviation; 1.253314 does the same for mean absolute deviation, the fallback scale when MAD is 0.
-export const anomalyRules = { madScale: 0.6745, meanAdScale: 1.253314, threshold: 3.5, minimumUnits: 8, defaultLimit: 20 };
+export const anomalyRules = { madScale: 0.6745, meanAdScale: 1.253314, threshold: 3.5, minimumUnits: 8 };
 // ponytail: a single relative share; groups whose previous value is below 5% of the largest previous group are too
 // small for a meaningful percentage. Upgrade path: an absolute minimum base per measure.
 export const changeRules = { tinyBaseShare: 0.05 };

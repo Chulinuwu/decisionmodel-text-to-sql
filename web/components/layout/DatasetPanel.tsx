@@ -15,6 +15,7 @@ export function DatasetPanel({ state, retry }: DatasetPanelProps) {
       <div className="source-state"><span className={`status-dot ${state.data.ready ? '' : 'offline'}`} />{state.data.ready ? 'เชื่อมต่อ PostgreSQL แล้ว' : 'ฐานข้อมูลยังไม่พร้อม'}</div>
       <div className="dataset-count"><strong>{state.data.orders.toLocaleString(numberLocale)}</strong><span>คำสั่งซื้อ</span></div>
       <p className="date-range">{state.data.minDate.slice(0, 10)} <span>ถึง</span> {state.data.maxDate.slice(0, 10)}</p>
+      <p className="coverage-window"><strong>ช่วงที่ข้อมูลครบ</strong> {state.data.schema.coverage.start} <span>ถึงก่อน</span> {state.data.schema.coverage.end}</p>
       <div className="schema-heading"><h3>ตารางและคอลัมน์</h3><span>{state.data.schema.relations.length}</span></div>
       <label className="sr-only" htmlFor="schema-search">ค้นหาตารางหรือคอลัมน์</label>
       <input id="schema-search" className="schema-search" value={search} onChange={event => setSearch(event.target.value)} placeholder="ค้นหาตาราง / คอลัมน์" type="search" />

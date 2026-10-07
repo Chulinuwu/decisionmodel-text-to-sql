@@ -1,3 +1,4 @@
+import { anomalyColumns } from '../../config/analysis';
 import { formatCell } from '../../utils/format';
 import type { ResultTableProps } from '../../types/props';
 
@@ -6,7 +7,7 @@ export function ResultTable({ response, question }: ResultTableProps) {
     <table>
       <caption className="sr-only">ผลลัพธ์สำหรับ {question}</caption>
       <thead><tr><th className="index-cell" scope="col">#</th>{response.columns.map(column => <th key={column} scope="col">{column}</th>)}</tr></thead>
-      <tbody>{response.rows.map((row, index) => <tr key={index}><td className="index-cell">{index + 1}</td>{response.columns.map(column => <td key={column} className={row[column] === null ? 'null-value' : ''}>{formatCell(row[column] ?? null)}</td>)}</tr>)}</tbody>
+      <tbody>{response.rows.map((row, index) => <tr key={index} className={row[anomalyColumns.outlier] === true ? 'outlier-row' : ''}><td className="index-cell">{index + 1}</td>{response.columns.map(column => <td key={column} className={row[column] === null ? 'null-value' : ''}>{formatCell(row[column] ?? null, column)}</td>)}</tr>)}</tbody>
     </table>
   </div>;
 }
