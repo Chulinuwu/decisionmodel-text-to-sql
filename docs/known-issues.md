@@ -17,6 +17,8 @@ Recorded 2026-10-07. Evidence comes from the live reports under `test-results/` 
 5. **Value linking can invent a filter.** Linking categorical values by model judgment (needed for Thai synonyms such as "ยกเลิก" -> canceled) once produced state = SP for "which state has the most customers". Round 3 keeps the unlinked alternative in the beam when there is no lexical evidence; still to be measured.
 6. **Eval sets are small** (20 built-in, 17 + 11 held out). A difference of one or two questions is within noise, so no design variant can be called optimal yet.
 
+7. **Period comparisons are often refused.** In the round-3 analysis held-out set, "ยอดขายเดือนล่าสุดเทียบกับเดือนก่อนหน้า", "ยอดขายปี 2018 เทียบกับปี 2017" and "รัฐไหนค่าส่งเฉลี่ยต่อสินค้าสูงผิดปกติ" produced no valid candidate ("ระบบสร้างแผนที่ตรวจสอบผ่านไม่ได้"). Not yet investigated; likely candidate building or validation for period_change and for anomaly units reached through joins.
+
 ## Engineering notes
 
 - Offers (interpretations a user can click) live in memory for 30 minutes and are lost on server restart.

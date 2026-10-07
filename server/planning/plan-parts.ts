@@ -73,5 +73,6 @@ export function planParts(ctx: BuildContext, root: RelationName, combo: Combo): 
   const limit = resolveLimit(ctx.space, combo.limit, slots.numberUses);
   if (limit === undefined) return null;
   const relative = isRelative(combo.relative_period) ? combo.relative_period : null;
-  return { resolver, groups, predicates, limit: limit ?? defaultRowLimits.select, limitChosen: limit !== null, relative };
+  const limitStated = limit !== null && (combo.limit?.startsWith('n_') === true || slots.numberUses.some(use => use.use === 'limit'));
+  return { resolver, groups, predicates, limit: limit ?? defaultRowLimits.select, limitStated, relative };
 }

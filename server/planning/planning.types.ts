@@ -85,4 +85,4 @@ export type PlanResult =
   | (Pick<Answer, 'status' | 'alternatives' | 'trace' | 'usage'> & { chosen: Answer['interpretation'] })
   | WithoutRequest<Extract<QueryResponse, { status: 'choose' }>>
   | WithoutRequest<Extract<QueryResponse, { status: 'unsupported' }>>;
-export type PlanParts = { resolver: Resolver; groups: Expression[]; predicates: Predicate[]; limit: number; limitChosen: boolean; relative: RelativeChoice | null };
+export type PlanParts = { resolver: Resolver; groups: Expression[]; predicates: Predicate[]; limit: number; limitStated: boolean; relative: RelativeChoice | null };

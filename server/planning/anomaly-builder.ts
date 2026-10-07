@@ -39,5 +39,6 @@ export function buildAnomaly(ctx: BuildContext, measure: Measure, realization: n
   const predicates = population(ctx, parts, shape.unit);
   if (predicates.length > planningLimits.maxPredicates) return null;
   const direction = isDirection(combo.anomaly_direction) ? combo.anomaly_direction : 'both';
-  return { kind: 'anomaly', from: parts.resolver.root, joins: [], where: { connector: 'and', predicates }, ...shape, direction, limit: parts.limitChosen ? parts.limit : defaultRowLimits.anomaly };
+  // The outlier set is decided by the data; a "which X" single-answer reading must not truncate it.
+  return { kind: 'anomaly', from: parts.resolver.root, joins: [], where: { connector: 'and', predicates }, ...shape, direction, limit: parts.limitStated ? parts.limit : defaultRowLimits.anomaly };
 }

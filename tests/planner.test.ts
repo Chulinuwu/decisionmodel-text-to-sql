@@ -288,6 +288,14 @@ test('anomaly without a period is scoped to the complete-data window', async t =
   assert.equal(scope.value.text, 'coverage');
 });
 
+test('a which-X single-answer limit does not truncate an anomaly result set', async t => {
+  mockDecisions(t, { analysis: { anomaly: 0.9 }, target: { revenue: 0.9 }, operation: { total: 0.9 }, group1: { month_purchase: 0.9 }, limit: { one: 0.85, default: 0.15 }, rank: { r_0: 0.9 } });
+  const result = await planQuestion('เดือนไหนยอดขายผิดปกติบ้าง', schema);
+  const plan = result.status === 'ok' ? result.chosen.plan : null;
+  assert.equal(plan?.kind, 'anomaly');
+  assert.equal(plan?.limit, 20);
+});
+
 test('period change path: latest month against the previous month', async t => {
   const question = 'ยอดขายเดือนนี้เทียบกับเดือนที่แล้วเป็นยังไง';
   const requests = mockDecisions(t, { analysis: { period_change: 0.85 }, target: { revenue: 0.9 }, operation: { total: 0.9 }, relative_period: { latest_month: 0.8 }, rank: { r_0: 0.9 } });
