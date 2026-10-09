@@ -1,6 +1,6 @@
 import { meterRequestSchema } from '../../shared/meter-schema.js';
 import type { MeterDataset, MeterResponse } from '../../shared/meter-api.js';
-import { MeterContextStore } from './context-store.js';
+import { MeterContextStore, continueMeterConversation } from './context-store.js';
 import { planMeterQuestion } from './planner.js';
 import { executeMeterPlan } from './service.js';
 import { getMeterDataset, withMeterSnapshot } from './data.js';
@@ -8,18 +8,11 @@ import { getMeterDataset, withMeterSnapshot } from './data.js';
 export const meterConversations = new MeterContextStore();
 export async function answerMeterQuestion(input: unknown, signal?: AbortSignal): Promise<MeterResponse> {
   const { question, contextId } = meterRequestSchema.parse(input);
-  const previous = contextId ? meterConversations.get(contextId) : null;
-  if (contextId && !previous) return { status: 'clarify', question,
-    message: 'The previous meter context expired. Please restate the complete question.',
-    trace: [], usage: { input_tokens: 0, output_tokens: 0, cost: 0 }, provider: '' };
   const dataset: MeterDataset = await getMeterDataset();
-  if (previous && (previous.datasetFingerprint !== dataset.fingerprint || previous.context.asOf !== dataset.context.asOf || previous.context.timezone !== dataset.context.timezone)) {
-    return { status: 'clarify', question, message: 'The dataset clock changed. Please start a new meter conversation.',
-      trace: [], usage: { input_tokens: 0, output_tokens: 0, cost: 0 }, provider: '' };
-  }
+  const { previous, contextReset } = continueMeterConversation(meterConversations, contextId, dataset);
   const planned = await planMeterQuestion(question, { ...dataset.context, resources: dataset.resources,
     buildings: dataset.buildings, floors: dataset.floors }, previous?.plan, signal);
-  const meta = { question, trace: planned.trace, usage: planned.usage, provider: planned.provider ?? '' };
+  const meta = { question, trace: planned.trace, usage: planned.usage, provider: planned.provider ?? '', contextReset };
   if (planned.status === 'clarify') return { ...meta, status: 'clarify', message: planned.message };
   signal?.throwIfAborted();
   const result = await withMeterSnapshot(async execute => {

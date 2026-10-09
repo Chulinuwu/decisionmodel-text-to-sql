@@ -1,7 +1,8 @@
 import type { Literal, Plan, Predicate, RelativePeriodKind } from '../../shared/query-schema';
 import type { ResultCell } from '../../shared/schema';
-import { anomalyColumns, changeColumns, pctDecimals, scoreDecimals } from '../config/analysis';
-import { booleanLabels, numberLocale, operatorLabels, relativePeriodLabels } from '../config/labels';
+import { anomalyColumns, booleanLabels, changeColumns, numberLocale, pctDecimals, scoreDecimals } from '../../shared/result-config';
+import { numericValue } from '../../shared/result-cells';
+import { operatorLabels, relativePeriodLabels } from '../config/labels';
 
 // A value import from shared/query-schema would pull zod into the browser bundle, so the kind check uses the label map.
 const isRelativeKind = (text: string): text is RelativePeriodKind => Object.hasOwn(relativePeriodLabels, text);
@@ -21,12 +22,6 @@ function predicateLabel(predicate: Predicate): string {
 export const filterLabels = (plan: Plan): string[] => plan.where.predicates.map(predicateLabel);
 
 export const probabilityLabel = (probability: number) => `${(probability * 100).toFixed(1)}%`;
-
-export function numericValue(value: ResultCell): number | null {
-  if (value === null || typeof value === 'boolean' || (typeof value === 'string' && !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim()))) return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
 
 export function formatCell(value: ResultCell, column = ''): string {
   if (value === null) return 'NULL';

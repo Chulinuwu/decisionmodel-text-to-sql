@@ -6,7 +6,8 @@ import { violatesReadOnlyPolicy } from '../planning/read-only-policy.js';
 import { buildMeterDecisionQuestions, buildMeterQuestions, buildMeterState } from './planning-questions.js';
 import type { MeterPlanningContext, MeterPlanningResult } from './planning.types.js';
 import { retainMeterFilters } from './planning-grounding.js';
-import { hasHistoricalMeterPeriod, hasUnboundMeterNumber, meterFloor, meterQuantities } from './planning-numbers.js';
+import { bindMeterNumbers, hasHistoricalMeterPeriod, hasUnboundMeterNumber, meterFloor, meterQuantities } from './planning-numbers.js';
+import { meterLimitIntents } from './planning-number-config.js';
 
 export { buildMeterDecisionQuestions, buildMeterQuestions, buildMeterState } from './planning-questions.js';
 export type { MeterPlanningContext, MeterPlanningResult } from './planning.types.js';
@@ -21,14 +22,15 @@ export async function planMeterQuestion(question: string, context: MeterPlanning
   if (!question.trim() || Buffer.byteLength(question) > 1200) return clarify('Please use a shorter, specific meter question.');
   if (violatesReadOnlyPolicy(question)) return clarify('Meter queries are read-only.');
   if (/\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/.test(question)) return clarify('Please use today, yesterday, this/last week or this/last month. Absolute dates are not supported yet.');
-  if (meterFloor(question).values.some(value => !context.floors.includes(value))) return clarify('That floor is not in the meter catalog.');
-  if (meterFloor(question).mentioned && !meterFloor(question).values.length && !/\ball\b|\bany\b|ทุกชั้น|ทุกระดับ|ทั้งหมด/i.test(question)) return clarify('Please specify a numbered floor from the catalog, or all floors.');
-  if (hasUnboundMeterNumber(question)) return clarify('A numeric constraint could not be bound safely. Please specify floor, top count or reporting duration explicitly.');
-  const questions = buildMeterQuestions(question, context, previous);
+  const numbers = bindMeterNumbers(question), floor = meterFloor(numbers);
+  if (floor.values.some(value => !context.floors.includes(value))) return clarify('That floor is not in the meter catalog.');
+  if (floor.mentioned && !floor.values.length && !/\ball\b|\bany\b|ทุกชั้น|ทุกระดับ|ทั้งหมด/i.test(question)) return clarify('Please specify a numbered floor from the catalog, or all floors.');
+  if (hasUnboundMeterNumber(numbers)) return clarify('A numeric constraint could not be bound safely. Please specify floor, top count or reporting duration explicitly.');
+  const questions = buildMeterQuestions(question, context, previous, numbers);
   let state: string;
   try { state = buildMeterState(question, context, previous); decisionPayload(state, questions); }
   catch { return clarify('The question or meter catalog exceeds the safe planning budget.'); }
-  const response = await decision(state, buildMeterDecisionQuestions(question, context, previous), signal);
+  const response = await decision(state, buildMeterDecisionQuestions(question, context, previous, numbers), signal);
   for (const [id, specification] of Object.entries(questions)) {
     if (specification.type === 'choice' && Object.keys(specification.criteria).length === 1) {
       const [value] = Object.keys(specification.criteria);
@@ -64,6 +66,9 @@ export async function planMeterQuestion(question: string, context: MeterPlanning
     limit: Number(selected.limit.slice(2)), staleMinutes: Number(selected.staleMinutes.slice(2)),
   });
   if (!parsed.success) return clarify('Could not resolve a valid meter plan. Please restate the question.');
-  const plan = previous && selected.continuity === 'followup' ? { ...retainMeterFilters(question, parsed.data, previous), limit: meterQuantities(question).limit ?? previous.limit, staleMinutes: meterQuantities(question).staleMinutes ?? previous.staleMinutes } : parsed.data;
+  const quantities = meterQuantities(numbers);
+  const plan = previous && selected.continuity === 'followup' ? { ...retainMeterFilters(question, parsed.data, previous, floor.mentioned), limit: quantities.limit ?? previous.limit, staleMinutes: quantities.staleMinutes ?? previous.staleMinutes } : parsed.data;
+  if (quantities.staleMinutes !== null && plan.intent !== 'stale') return clarify('A duration only applies to meters that stopped reporting. Rolling windows such as "last N hours" are not supported; use today, yesterday, this/last week or this/last month.');
+  if (quantities.limit !== null && !meterLimitIntents.includes(plan.intent)) return clarify('A top count only applies to rankings, anomalies, spike explanations or reporting status. Please restate the question.');
   return { status: 'ok', plan, trace, usage, provider };
 }

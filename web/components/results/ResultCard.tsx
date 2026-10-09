@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { numberLocale } from '../../config/labels';
+import { numberLocale } from '../../../shared/result-config';
 import { resultChartData } from '../../utils/chart-data';
 import { anomalyWithoutOutliers, cappedByDefault } from '../../utils/result-summary';
 import { AnomalyNote } from './AnomalyNote';

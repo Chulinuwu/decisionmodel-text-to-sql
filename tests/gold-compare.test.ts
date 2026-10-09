@@ -7,7 +7,7 @@ import type { QueryResponse } from '../shared/schema.js';
 const fieldDef = (name: string, dataTypeID: number): FieldDef => ({ name, dataTypeID, tableID: 0, columnID: 0, dataTypeSize: -1, dataTypeModifier: -1, format: 'text' });
 const gold = (fields: FieldDef[], rows: Record<string, unknown>[]): QueryResult => ({ command: 'SELECT', rowCount: rows.length, oid: 0, fields, rows });
 const answered = (columns: string[], rows: Record<string, string | number | null>[]): Extract<QueryResponse, { status: 'ok' }> => ({
-  status: 'ok', question: 'q', plan: { kind: 'select', from: 'orders', select: [{ kind: 'aggregate', fn: 'count', field: null, distinct: false }], joins: [], where: { connector: 'and', predicates: [] }, groupBy: [], orderBy: null, limit: 100 },
+  status: 'ok', question: 'q', answer: 'a', plan: { kind: 'select', from: 'orders', select: [{ kind: 'aggregate', fn: 'count', field: null, distinct: false }], joins: [], where: { connector: 'and', predicates: [] }, groupBy: [], orderBy: null, limit: 100 },
   interpretation: { id: 'r_0', plan: { kind: 'select', from: 'orders', select: [{ kind: 'aggregate', fn: 'count', field: null, distinct: false }], joins: [], where: { connector: 'and', predicates: [] }, groupBy: [], orderBy: null, limit: 100 }, summary: '', parts: [], probability: null },
   alternatives: [], offerId: null, sql: '', parameters: [], columns, rows, truncated: false, trace: [], usage: { input_tokens: 0, output_tokens: 0, cost: 0 }, model: '', provider: '', elapsedMs: 0, warnings: [],
 });

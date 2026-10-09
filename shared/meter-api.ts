@@ -5,7 +5,8 @@ export type MeterDataset = {
   context: MeterContext; resources: string[]; buildings: string[]; floors: number[];
   synthetic: true; fingerprint: string;
 };
-type MeterResponseMeta = { question: string; trace: Trace[]; usage: Usage; provider: string };
+// contextReset: the sent contextId was expired, unknown or from another dataset clock, so the question was answered as a new conversation.
+type MeterResponseMeta = { question: string; trace: Trace[]; usage: Usage; provider: string; contextReset: boolean };
 export type MeterResponse = MeterResponseMeta & (
   { status: 'ok'; result: MeterResult; contextId: string; context: MeterContext; synthetic: true; datasetFingerprint: string }
   | { status: 'clarify'; message: string }

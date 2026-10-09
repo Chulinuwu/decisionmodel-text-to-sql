@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { MeterDataset, MeterResponse } from '../../shared/meter-api';
 import { fetchMeterAnswer, fetchMeterDataset } from './client';
+import { nextMeterContextId } from './conversation';
 
 export function useMeter() {
   const [dataset, setDataset] = useState<MeterDataset | null>(null);
@@ -27,7 +28,7 @@ export function useMeter() {
     try {
       const result = await fetchMeterAnswer(question, context.current, controller.signal);
       if (controller.signal.aborted) return;
-      if (result.status === 'ok') context.current = result.contextId;
+      context.current = nextMeterContextId(context.current, result);
       setResponse(result);
     } catch (error) {
       if (!controller.signal.aborted) setError(error instanceof Error ? error.message : 'Meter request failed.');

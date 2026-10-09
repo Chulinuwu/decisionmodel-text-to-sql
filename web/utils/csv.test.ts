@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { toCsv } from './csv';
-import { numericValue } from './format';
+import { numericValue } from '../../shared/result-cells';
 
 test('CSV preserves columns, Thai text, nulls and escaped multiline values', () => {
   assert.equal(toCsv(['name', 'amount'], [{ name: 'ไทย,"line"\nnext', amount: null }]), '"name","amount"\r\n"ไทย,""line""\nnext",""');

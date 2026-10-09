@@ -1,13 +1,12 @@
 import { meterCatalog } from '../server/meter/data-fixture.js';
+import { meterCatalogAxes } from '../server/meter/catalog-order.js';
 import { fixtureAsOf } from '../server/meter/data-config.js';
 import type { MeterPlanningContext } from '../server/meter/planner.js';
 import { fileURLToPath } from 'node:url';
 
 export const meterDatasetContext: MeterPlanningContext = {
   asOf: fixtureAsOf, timezone: 'Asia/Bangkok',
-  resources: [...new Set(meterCatalog.map(meter => meter.resource))].sort(),
-  buildings: [...new Set(meterCatalog.map(meter => meter.building))].sort(),
-  floors: [...new Set(meterCatalog.map(meter => meter.floor))].sort(),
+  ...meterCatalogAxes(meterCatalog),
 };
 export const periodText = {
   today: 'today', yesterday: 'yesterday', this_week: 'this week', last_week: 'last week',

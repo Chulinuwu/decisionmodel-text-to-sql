@@ -1,4 +1,4 @@
-import { anomalyColumns } from '../../config/analysis';
+import { anomalyColumns } from '../../../shared/result-config';
 import { formatCell } from '../../utils/format';
 import type { ResultTableProps } from '../../types/props';
 

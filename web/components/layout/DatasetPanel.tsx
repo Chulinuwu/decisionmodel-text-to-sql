@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { DatasetPanelProps } from '../../types/props';
-import { numberLocale } from '../../config/labels';
+import { numberLocale } from '../../../shared/result-config';
 import { Icon } from './Icon';
 
 export function DatasetPanel({ state, retry }: DatasetPanelProps) {

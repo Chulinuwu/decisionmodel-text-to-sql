@@ -1,5 +1,5 @@
 import type { ResultCell } from '../../shared/schema';
-import { numericValue } from './format';
+import { numericValue } from '../../shared/result-cells';
 
 export function toCsv(columns: string[], rows: Record<string, ResultCell>[]): string {
   const escape = (value: ResultCell) => {

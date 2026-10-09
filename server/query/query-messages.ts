@@ -8,5 +8,19 @@ export const warningMessages = {
   distinctGroups: 'จำนวน DISTINCT ของแต่ละกลุ่มอาจบวกกันแล้วมากกว่าจำนวนรวม เพราะตัวตนเดียวอยู่ได้หลายกลุ่ม',
 };
 
+export const answerMessages = {
+  empty: 'ไม่พบข้อมูลที่ตรงกับคำถามนี้',
+  missing: 'ไม่มีค่า',
+  rowCount: (rows: number, truncated: boolean, capped: boolean, ranked: boolean) => capped ? `แสดง ${rows} แถวแรก ยังมีแถวอื่นที่ไม่ได้แสดง` : truncated ? `แสดง ${rows} ${ranked ? 'อันดับ' : 'แถว'}ตามที่ขอ` : `พบ ${rows} แถว`,
+  firstRow: (ranked: boolean) => ranked ? 'อันดับแรกคือ' : 'แถวแรกคือ',
+  noOutlier: (rows: number, threshold: number) => `ไม่พบค่าผิดปกติตามเกณฑ์ modified z-score ${threshold} ใน ${rows} หน่วยที่แสดง`,
+  noOutlierShown: (rows: number) => `ไม่พบค่าผิดปกติใน ${rows} หน่วยที่แสดง แต่หน่วยที่ไม่ได้แสดงอาจมีค่าผิดปกติ`,
+  outliers: (count: number, atLeast: boolean, unit: string) => `พบ${unit}ที่ผิดปกติ${atLeast ? 'อย่างน้อย' : ''} ${count} รายการ`,
+  topOutlier: (unit: string, measure: string, value: string, baseline: string, score: string) => `ผิดปกติมากที่สุดคือ ${unit} (${measure} ${value} เทียบค่ามัธยฐาน ${baseline}, score ${score})`,
+  change: (measure: string, current: string, previous: string) => `${measure} ช่วงปัจจุบัน ${current} เทียบกับช่วงก่อนหน้า ${previous}`,
+  pct: (pct: string) => `เปลี่ยนแปลง ${pct}`,
+  noPct: 'คำนวณร้อยละไม่ได้เพราะช่วงก่อนหน้าไม่มีค่าหรือเป็น 0',
+};
+
 export const moneyColumns = ['price', 'revenue', 'freight', 'freight_value', 'payment_total', 'payment_value'];
 export const statusScopedRelations = ['orders', 'items'];

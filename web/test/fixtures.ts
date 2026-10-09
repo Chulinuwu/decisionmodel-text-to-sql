@@ -45,7 +45,7 @@ const usage = { input_tokens: 0, output_tokens: 0, cost: 0 };
 
 export function answered(plan: AnsweredResponse['plan'], columns: string[], rows: AnsweredResponse['rows'], truncated = false): AnsweredResponse {
   return {
-    status: 'ok', question: 'q', plan, interpretation: { id: 'r_0', plan, summary: 's', parts: [], probability: null }, alternatives: [], offerId: null,
+    status: 'ok', question: 'q', answer: 'a', plan, interpretation: { id: 'r_0', plan, summary: 's', parts: [], probability: null }, alternatives: [], offerId: null,
     sql: '', parameters: [], columns, rows, truncated, trace: [], usage, model: '', provider: '', elapsedMs: 0, warnings: [],
   };
 }

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { planMeterQuestion, buildMeterDecisionQuestions, buildMeterQuestions, buildMeterState } from '../server/meter/planner.js';
+import { bindMeterNumbers } from '../server/meter/planning-numbers.js';
 import type { Question, DecisionResponse } from '../server/decision-schema.js';
 import type { MeterPlan } from '../shared/meter-schema.js';
 
@@ -115,4 +116,45 @@ test('same dataset input contract escapes injected fields and grounds numeric ch
   assert.equal(questions.limit.criteria.v_7, '7');
   assert.equal(questions.staleMinutes.criteria.v_120, '120');
   assert.throws(() => buildMeterState('x'.repeat(2600), context));
+});
+
+test('number spans bind to one slot by adjacent unit or keyword, including spaceless Thai compounds', () => {
+  assert.deepEqual(bindMeterNumbers('มิเตอร์ไหนไม่ส่งข้อมูลเกิน2ชั่วโมง'), { floor: [], limit: [], staleMinutes: [120], unbound: false, floorMentioned: false });
+  assert.deepEqual(bindMeterNumbers('เกินยี่สิบนาที').staleMinutes, [20]);
+  assert.deepEqual(bindMeterNumbers('เกินสามสิบห้านาที').staleMinutes, [35]);
+  assert.deepEqual(bindMeterNumbers('เกิน๒ชั่วโมง').staleMinutes, [120]);
+  assert.deepEqual(bindMeterNumbers('Which floor 3 meters used the most'), { floor: [3], limit: [], staleMinutes: [], unbound: false, floorMentioned: true });
+  assert.equal(bindMeterNumbers('H2SO4 usage in building B2').unbound, false);
+  assert.equal(bindMeterNumbers('สามารถดูการใช้น้ำวันนี้ได้ไหม').unbound, false);
+  assert.equal(bindMeterNumbers('Usage of 5 today').unbound, true);
+});
+
+test('reproduced misbindings clarify or bind to the right slot instead of defaulting', async () => {
+  assert.equal((await planMeterQuestion('DI Water usage in the last 2 hours', context, undefined, undefined, stub({ resource: 'r_0' }))).status, 'clarify');
+  const floor = await planMeterQuestion('Which floor 3 meters used the most', context, undefined, undefined, stub({ intent: 'ranking' }));
+  assert.equal(floor.status, 'ok');
+  if (floor.status === 'ok') assert.deepEqual([floor.plan.floor, floor.plan.limit], [3, 10]);
+  for (const [question, minutes] of [['มิเตอร์ไหนไม่ส่งข้อมูลเกิน2ชั่วโมง', 120], ['มิเตอร์ไหนไม่ส่งข้อมูลเกินยี่สิบนาที', 20]] as const) {
+    const stale = await planMeterQuestion(question, context, undefined, undefined, stub({ intent: 'stale' }));
+    assert.equal(stale.status, 'ok', question);
+    if (stale.status === 'ok') assert.equal(stale.plan.staleMinutes, minutes, question);
+  }
+  assert.equal((await planMeterQuestion('Total DI Water usage top 5 today', context, undefined, undefined, stub({ resource: 'r_0' }))).status, 'clarify');
+});
+
+test('keywords glued to digits still bind to their slot', async () => {
+  assert.deepEqual(bindMeterNumbers('top5 meters'), { floor: [], limit: [5], staleMinutes: [], unbound: false, floorMentioned: false });
+  assert.deepEqual(bindMeterNumbers('usage on floor3'), { floor: [3], limit: [], staleMinutes: [], unbound: false, floorMentioned: true });
+  const ranked = await planMeterQuestion('top5 DI Water meters on floor3 today', context, undefined, undefined, stub({ intent: 'ranking', resource: 'r_0' }));
+  assert.equal(ranked.status, 'ok');
+  if (ranked.status === 'ok') assert.deepEqual([ranked.plan.limit, ranked.plan.floor], [5, 3]);
+});
+
+test('Thai false-friend words, all-buildings phrasing and a non-unit ชม bind no numbers', () => {
+  for (const question of ['การใช้น้ำของห้างวันนี้', 'ร้อยละการใช้น้ำวันนี้', 'ยี่ห้อมิเตอร์ไหนใช้น้ำมาก', 'หนึ่งในมิเตอร์ที่ใช้มาก', 'ส่วนหนึ่งของการใช้น้ำ', 'มิเตอร์แถวสี่แยก', 'หกล้มใกล้มิเตอร์', 'การใช้น้ำทั้งสองอาคาร']) {
+    assert.deepEqual(bindMeterNumbers(question), { floor: [], limit: [], staleMinutes: [], unbound: false, floorMentioned: false }, question);
+  }
+  assert.deepEqual(bindMeterNumbers('มิเตอร์ 5 ชมพู').staleMinutes, []);
+  assert.equal(bindMeterNumbers('มิเตอร์ 5 ชมพู').unbound, true);
+  assert.deepEqual(bindMeterNumbers('ไม่ส่งข้อมูลเกิน 2 ชม.').staleMinutes, [120]);
 });

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { MeterContextStore } from '../server/meter/context-store.js';
+import { MeterContextStore, continueMeterConversation } from '../server/meter/context-store.js';
 import { config } from '../server/config.js';
-import type { MeterConversation } from '../shared/meter-api.js';
+import type { MeterConversation, MeterDataset } from '../shared/meter-api.js';
 
 test('meter context is immutable, bounded and expires', () => {
   let now = 0;
@@ -19,4 +19,18 @@ test('meter context is immutable, bounded and expires', () => {
   const fresh = store.save(value);
   now += config.offerTtlMs;
   assert.equal(store.get(fresh), null);
+});
+
+test('expired, unknown or other-clock meter context restarts the conversation instead of blocking', () => {
+  let now = 0;
+  const store = new MeterContextStore(() => now);
+  const context = { asOf: '2026-10-09T05:00:00Z', timezone: 'Asia/Bangkok' as const };
+  const dataset: MeterDataset = { context, resources: [], buildings: [], floors: [], synthetic: true, fingerprint: 'test' };
+  const id = store.save({ datasetFingerprint: 'test', context, plan: { intent: 'total', period: 'today', resource: null, building: null, floor: null, limit: 10, staleMinutes: 60 } });
+  assert.deepEqual(continueMeterConversation(store, undefined, dataset), { previous: null, contextReset: false });
+  assert.equal(continueMeterConversation(store, id, dataset).contextReset, false);
+  assert.equal(continueMeterConversation(store, id, { ...dataset, fingerprint: 'other' }).contextReset, true);
+  assert.equal(continueMeterConversation(store, 'f'.repeat(32), dataset).contextReset, true);
+  now += config.offerTtlMs;
+  assert.deepEqual(continueMeterConversation(store, id, dataset), { previous: null, contextReset: true });
 });

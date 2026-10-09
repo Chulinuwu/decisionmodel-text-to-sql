@@ -21,6 +21,7 @@ export function MeterWorkspace() {
     {error && <p role="alert">{error}</p>}
     {response && <section aria-live="polite" className="status-card">
       <h2>{response.question}</h2>
+      {response.contextReset && <p role="status">เริ่มบทสนทนาใหม่ เพราะบริบทของคำถามก่อนหน้าใช้ต่อไม่ได้แล้ว คำถามนี้จึงตอบแยกต่างหาก</p>}
       <p>{response.status === 'ok' ? response.result.text : response.message}</p>
       {response.status === 'ok' && <>
         <p>Period: {response.result.window.start} to {response.result.window.end} (end excluded).</p>

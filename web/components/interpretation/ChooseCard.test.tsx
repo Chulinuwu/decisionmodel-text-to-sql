@@ -16,9 +16,10 @@ const response: ChooseResponse = {
 };
 
 test('choose card lists every interpretation with parts and a run button without executing while rendering', () => {
-  const html = renderToStaticMarkup(<ChooseCard response={response} onExecute={() => { throw new Error('Must not execute while rendering'); }} />);
+  const html = renderToStaticMarkup(<ChooseCard response={response} disabled={false} onExecute={() => { throw new Error('Must not execute while rendering'); }} />);
   assert.ok(html.includes('หมายถึงแบบไหนคะ'));
-  assert.ok(html.includes(response.question));
+  assert.ok(html.includes(response.message));
+  assert.ok(!html.includes(response.question), 'the chat user bubble already shows the question');
   for (const interpretation of interpretations) {
     assert.ok(html.includes(interpretation.summary));
     for (const part of interpretation.parts) assert.ok(html.includes(`<dt>${part.label}</dt><dd>${part.value}</dd>`));

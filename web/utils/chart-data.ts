@@ -1,7 +1,7 @@
 import type { ResultCell } from '../../shared/schema';
-import { anomalyColumns, changeColumns } from '../config/analysis';
+import { anomalyColumns, changeColumns } from '../../shared/result-config';
 import { chartMinRows } from '../config/chart';
-import { numericValue } from './format';
+import { numericValue } from '../../shared/result-cells';
 import type { AnsweredResponse, ChartData, ChartPoint } from '../types/state';
 
 type Row = AnsweredResponse['rows'][number];

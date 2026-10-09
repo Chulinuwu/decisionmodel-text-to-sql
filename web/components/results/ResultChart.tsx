@@ -1,5 +1,5 @@
 import { chartMaxBars } from '../../config/chart';
-import { numberLocale } from '../../config/labels';
+import { numberLocale } from '../../../shared/result-config';
 import type { ResultChartProps } from '../../types/props';
 
 const formatValue = (value: number) => value.toLocaleString(numberLocale, { maximumFractionDigits: 3 });

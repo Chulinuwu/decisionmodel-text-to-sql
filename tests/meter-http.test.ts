@@ -13,7 +13,7 @@ test('meter HTTP validates requests and never accepts a client plan or clock', a
     datasetInfo: async () => { throw new Error('Not used'); },
     answerMeterQuestion: async ({ question }) => {
       calls++;
-      return { status: 'clarify', question, message: 'Specify a meter.', trace: [], provider: '',
+      return { status: 'clarify', question, message: 'Specify a meter.', trace: [], provider: '', contextReset: false,
         usage: { input_tokens: 0, output_tokens: 0, cost: 0 } };
     },
   }).listen(0, '127.0.0.1');
