@@ -7,7 +7,7 @@ export type IconProps = { name: IconName };
 export type AppHeaderProps = { showDataset: boolean; onToggleDataset: () => void };
 export type DatasetPanelProps = { state: DatasetState; retry: () => void };
 export type QueryComposerProps = {
-  question: string; onChange: (value: string) => void; onEdit: (value: string) => void; onSubmit: () => void;
+  question: string; onChange: (value: string) => void; onSubmit: () => void;
   inputRef: RefObject<HTMLTextAreaElement | null>; loading: boolean; disabled: boolean;
 };
 export type LoadingStateProps = { request: QueryRequest; onCancel: () => void };

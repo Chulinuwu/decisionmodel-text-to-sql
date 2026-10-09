@@ -19,7 +19,7 @@ export function App() {
 }
 
 function OlistWorkspace() {
-  const { question, setQuestion, inputRef, editQuestion } = useQuestionDraft();
+  const { question, setQuestion, inputRef } = useQuestionDraft();
   const [showDataset, setShowDataset] = useState(false);
   const { dataset, reloadDataset } = useDataset();
   const chat = useChat();
@@ -32,8 +32,7 @@ function OlistWorkspace() {
         : <div className="chat-toolbar"><button type="button" className="secondary-button" onClick={chat.reset}>เริ่มแชทใหม่</button></div>}
       <ChatThread turns={chat.turns} dataset={dataset.status === 'ready' ? dataset.data : undefined} disabled={!ready || chat.loading} onExecute={chat.execute} onCancel={chat.cancel} onRetry={chat.retry} />
       {!ready && dataset.status !== 'loading' && <p className="availability-note" role="status">รอฐานข้อมูลพร้อมใช้งานก่อนถามข้อมูล</p>}
-      <QueryComposer question={question} onChange={setQuestion} onEdit={editQuestion} inputRef={inputRef} onSubmit={() => { chat.ask(question.trim()); setQuestion(''); }} loading={chat.loading} disabled={!ready} />
-      <footer className="workspace-footer"><span>Olist Brazilian E-Commerce · ข้อมูลในอดีต</span><span>Clef Flash / Decision Model</span></footer>
+      <QueryComposer question={question} onChange={setQuestion} inputRef={inputRef} onSubmit={() => { chat.ask(question.trim()); setQuestion(''); }} loading={chat.loading} disabled={!ready} />
     </main></div>
   </div>;
 }
