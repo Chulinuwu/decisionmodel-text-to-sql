@@ -21,6 +21,8 @@ test('select answers state a single value, rank grouped rows and never total tru
   assert.match(answerText(grouped, rows, true), /^แสดง 2 แถวแรก ยังมีแถวอื่นที่ไม่ได้แสดง/);
   assert.match(answerText({ ...grouped, limit: 2 }, rows, true), /^แสดง 2 อันดับตามที่ขอ/);
   assert.ok(!answerText(grouped, rows, true).includes('1,000'));
+  assert.match(answerText({ ...grouped, limit: 1 }, rows.slice(0, 1), true), /^\S.*SP, .*900$/);
+  assert.ok(!answerText({ ...grouped, limit: 1 }, rows.slice(0, 1), true).startsWith('แสดง'));
 });
 
 test('anomaly answers count outliers, name the top one and hedge when every shown row is an outlier', () => {

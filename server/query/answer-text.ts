@@ -51,7 +51,7 @@ function changeAnswer(plan: PeriodChangePlan, rows: Row[], truncated: boolean) {
 
 function selectAnswer(plan: SelectPlan, rows: Row[], truncated: boolean) {
   const first = plan.select.map(expression => labelled(plan, expression, rows[0])).join(', ');
-  if (rows.length === 1 && !truncated) return first;
+  if (rows.length === 1) return first;
   return `${firstRowLead(plan, rows, truncated)} ${first}`;
 }
 
