@@ -26,7 +26,7 @@ function OlistWorkspace() {
   const ready = dataset.status === 'ready' && dataset.data.ready;
   return <div className="app-shell">
     <AppHeader showDataset={showDataset} onToggleDataset={() => setShowDataset(value => !value)} />
-    <div className="workspace"><div id="dataset-sidebar" className={`sidebar-wrap ${showDataset ? 'mobile-open' : ''}`}><DatasetPanel state={dataset} retry={reloadDataset} /></div><main>
+    <div className="workspace"><div id="dataset-sidebar" className={`sidebar-wrap ${showDataset ? 'mobile-open' : ''}`}><DatasetPanel state={dataset} retry={reloadDataset} /></div><main className="chat-main">
       {chat.turns.length === 0
         ? <ChatWelcome />
         : <div className="chat-toolbar"><button type="button" className="secondary-button" onClick={chat.reset}>เริ่มแชทใหม่</button></div>}
