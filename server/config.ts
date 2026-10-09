@@ -3,6 +3,7 @@ import { allowedHosts, env } from './env.js';
 export const config = {
   model: 'cloudflare/clef-flash',
   provider: 'Cloudflare',
+  providerSlug: 'cloudflare',
   decisionsUrl: 'https://openrouter.ai/api/alpha/decisions',
   host: env.HOST,
   port: env.PORT,

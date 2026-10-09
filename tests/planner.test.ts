@@ -164,6 +164,16 @@ test('provider failures still throw instead of becoming interpretation outcomes'
   await assert.rejects(planQuestion('How many orders?', schema), /Decisions API returned HTTP 500/);
 });
 
+test('decision requests pin the expected provider so OpenRouter cannot reroute them', async t => {
+  const key = process.env.OPENROUTER_KEY;
+  process.env.OPENROUTER_KEY = 'test-placeholder';
+  t.after(() => { if (key === undefined) delete process.env.OPENROUTER_KEY; else process.env.OPENROUTER_KEY = key; });
+  const bodies: unknown[] = [];
+  t.mock.method(globalThis, 'fetch', async (_url: unknown, init?: RequestInit) => { bodies.push(JSON.parse(String(init?.body))); return new Response('{}', { status: 500 }); });
+  await assert.rejects(planQuestion('How many orders?', schema));
+  assert.deepEqual(z.object({ provider: z.unknown() }).parse(bodies[0]).provider, { only: [config.providerSlug], allow_fallbacks: false });
+});
+
 test('a year bucket fixed by a same-year filter and an implied not_null collapse into one plain count', async t => {
   const requests = mockDecisions(t, {
     target: { count_items: 0.9 }, group1: { year_shipping_limit: 0.5, none: 0.4 }, missing: { shipping_limit_not_null: 0.5, none: 0.45 },
