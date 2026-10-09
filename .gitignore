@@ -5,6 +5,7 @@ dist/
 .lean-ctx/
 server.log
 test-results/
+reports/
 __pycache__/
 *.pyc
 .omc/

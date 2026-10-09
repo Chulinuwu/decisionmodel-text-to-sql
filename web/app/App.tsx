@@ -8,7 +8,17 @@ import { ResultsPanel } from '../components/results/ResultsPanel';
 import { useExplorer } from '../hooks/useExplorer';
 import { useQuestionDraft } from '../hooks/useQuestionDraft';
 
+import { MeterWorkspace } from '../meter/MeterWorkspace';
+
 export function App() {
+  const [domain, setDomain] = useState(window.location.hash === '#meter' ? 'meter' : 'olist');
+  return <><nav aria-label="Dataset" className="examples">
+    <button aria-pressed={domain === 'olist'} onClick={() => { setDomain('olist'); window.location.hash = 'olist'; }}>Olist</button>
+    <button aria-pressed={domain === 'meter'} onClick={() => { setDomain('meter'); window.location.hash = 'meter'; }}>Synthetic meters</button>
+  </nav>{domain === 'meter' ? <MeterWorkspace /> : <OlistWorkspace />}</>;
+}
+
+function OlistWorkspace() {
   const { question, setQuestion, inputRef, editQuestion } = useQuestionDraft();
   const [showDataset, setShowDataset] = useState(false);
   const { dataset, query, run, execute, retry, cancel, reloadDataset } = useExplorer();

@@ -1,0 +1,110 @@
+{
+  "date": "2026-10-09",
+  "suite": "meter regression",
+  "provider": "Cloudflare",
+  "provider_fallbacks": false,
+  "tests": {
+    "passed": 147,
+    "failed": 0,
+    "skipped": 0
+  },
+  "build": "passed",
+  "source_fingerprint": "355bb19aa05fc103585bf9538cdf6e58f80e0f240a9e3d779895339e2fc1c568",
+  "fixture_fingerprint": "5e272563a67bbdf35583a704e35100e3819bf7f356bf2f759e0734c29d2937c9",
+  "live_correct": 17,
+  "live_total": 17,
+  "reported_cost_usd": 0.00210042,
+  "cases": [
+    {
+      "id": "total_en",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "total_th",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "ranking_en",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "ranking_th",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "comparison_en",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "comparison_th",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "anomaly_en",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "anomaly_th",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "stale_en",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "stale_th",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "explain_en",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "explain_th",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "followup_en",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "followup_th",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "summary_en",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "summary_th",
+      "correct": true,
+      "status": "ok"
+    },
+    {
+      "id": "missing_context",
+      "correct": true,
+      "status": "clarify"
+    }
+  ],
+  "limitations": [
+    "Synthetic fixture only; not operational validation.",
+    "Regression cases were used during development and are not independent held-out accuracy.",
+    "Explanations identify measured contributors, not physical causes.",
+    "Earlier local paraphrase regression was 7/8 with one clarification and used mixed hosting providers; not rerun for this publication."
+  ]
+}

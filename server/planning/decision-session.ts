@@ -1,6 +1,7 @@
 import type { Trace, Usage } from '../../shared/schema.js';
 import type { Question } from '../decision-schema.js';
 import { decide } from '../decisions-client.js';
+import { remoteQuestions } from '../decision-payload.js';
 import type { DecisionAnswers } from './planning.types.js';
 import { planningLimits } from './planning-limits.js';
 
@@ -15,12 +16,11 @@ export class DecisionSession {
   async ask(stage: string, questions: Record<string, Question>): Promise<DecisionAnswers> {
     this.signal.throwIfAborted();
     const answers: DecisionAnswers = {};
-    const open: Record<string, Question> = {};
+    const open = remoteQuestions(questions);
     for (const [id, question] of Object.entries(questions)) {
       const only = question.type === 'choice' ? Object.keys(question.criteria) : [];
       // A single-option choice is decided by code; the Decisions API also rejects it (422).
       if (only.length === 1) answers[id] = { type: 'choice', choice: only[0], probabilities: { [only[0]]: 1 } };
-      else open[id] = question;
     }
     if (Object.keys(open).length) {
       if (++this.calls > planningLimits.maxDecisionCalls) throw new Error('Decision call budget exceeded');

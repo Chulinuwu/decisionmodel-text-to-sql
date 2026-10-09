@@ -1,13 +1,10 @@
 import { config } from './config.js';
 import { decisionResponseSchema, type DecisionResponse, type Question } from './decision-schema.js';
+import { decisionPayload } from './decision-payload.js';
 
 export async function decide(state: string, questions: Record<string, Question>, signal?: AbortSignal): Promise<DecisionResponse> {
   if (!process.env.OPENROUTER_KEY) throw new Error('OPENROUTER_KEY is missing in .env');
-  if (Buffer.byteLength(state) > 2600) throw new Error('Decision state exceeds the safe context budget');
-  // OpenRouter otherwise routes this model to other hosts (seen: PrimeIntellect), which the provider check below rejects.
-  const payload = JSON.stringify({ model: config.model, provider: { only: [config.providerSlug], allow_fallbacks: false }, state, questions });
-  if (Buffer.byteLength(payload) > 32000) throw new Error('Decision request exceeds safe schema/context budget');
-  if (Object.values(questions).some(question => question.type === 'choice' && Object.keys(question.criteria).length > 255)) throw new Error('Decision answer-space exceeds 255 choices');
+  const payload = decisionPayload(state, questions);
   const response = await fetch(config.decisionsUrl, {
     method: 'POST',
     headers: { Authorization: `Bearer ${process.env.OPENROUTER_KEY}`, 'Content-Type': 'application/json', 'X-OpenRouter-Title': 'Olist Decision SQL Local' },

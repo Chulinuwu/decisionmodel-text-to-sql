@@ -2,7 +2,29 @@
 
 ## Overview
 
-An experimental question-answering app over the public Kaggle Olist Brazilian e-commerce dataset (2016 to 2018). A user asks a question in Thai or English. Cloudflare Clef Flash, called through the OpenRouter Decisions API, scores a fixed set of multiple-choice questions about it. Code turns those scores into complete candidate query plans, compiles each plan into parameterized PostgreSQL, and asks Clef once more to rank the candidates. The web app shows the result rows, the SQL and parameters, the interpretation in plain Thai, other plausible interpretations and the decision probabilities.
+Two experimental question-answering workspaces use Clef Flash decisions and deterministic, read-only PostgreSQL compilers: Olist e-commerce and synthetic utility meters. Switch workspaces in the browser; open `/#meter` for meters.
+
+## Synthetic meter workspace
+
+The meter harness supports usage totals, ranking, period comparisons, daily anomalies, stale reporting, measured change contributors, conversational follow-ups and multi-query summaries. It retains a validated plan in a bounded server-owned conversation store. Answers include SQL evidence, coverage warnings and a frozen clock; cumulative counter resets, invalid readings and missing intervals are handled explicitly.
+
+```sh
+npm install
+npm run db:up
+npm run meter:import
+npm run build
+npm start
+```
+
+Set `OPENROUTER_KEY` in `.env`, then open http://localhost:4317/#meter. The fixture contains 15 synthetic meters and 33,439 readings, anchored at 2026-10-09 12:00 Asia/Bangkok. It is not connected to a real facility. Cloudflare-only routing and disabled provider fallbacks are preserved.
+
+Validation on the integrated code: 147 tests passed with `METER_DB_TEST=1 npm test`, build passed, and the actual Cloudflare harness passed 17/17 English/Thai regression cases. These are regression results, not an independent generalization benchmark. Physical causes of spikes remain unknown; the harness reports measured contributors. See [meter harness](docs/meter-harness.md) and [evaluation evidence](docs/meter-validation.json).
+
+[Text2SQL-Decisions on Hugging Face](https://huggingface.co/datasets/Chulinz/Text2SQL-Decisions) includes a separate English-only `meter` configuration with 3,081 synthetic examples, alongside 25,000 default SQL-plan-selection examples. The contracts differ; do not concatenate them unchanged. Run `npm run meter:dataset` to generate meter decisions locally. See [dataset documentation](docs/meter-dataset.md).
+
+## Olist workspace
+
+The original workspace covers the public Kaggle Olist Brazilian e-commerce dataset (2016 to 2018). A user asks a question in Thai or English. Cloudflare Clef Flash, called through the OpenRouter Decisions API, scores a fixed set of multiple-choice questions about it. Code turns those scores into complete candidate query plans, compiles each plan into parameterized PostgreSQL, and asks Clef once more to rank the candidates. The web app shows the result rows, the SQL and parameters, the interpretation in plain Thai, other plausible interpretations and the decision probabilities.
 
 The model never writes SQL. Every query is produced by a deterministic compiler from a typed plan and runs read-only.
 

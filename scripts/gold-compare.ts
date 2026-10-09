@@ -38,7 +38,7 @@ export const expectedRows = (gold: QueryResult) => {
 
 // Columns are matched by values, not names: each gold column maps to exactly one response column, and the
 // mapping must make the full row multiset (or sequence, when ordered) equal.
-export function compareToGold(response: Extract<QueryResponse, { status: 'ok' }>, gold: QueryResult, ordered: boolean): GoldComparison {
+export function compareToGold(response: Pick<Extract<QueryResponse, { status: 'ok' }>, 'columns' | 'rows'>, gold: QueryResult, ordered: boolean): GoldComparison {
   const numeric = numericFields(gold);
   const expected = expectedRows(gold);
   const failed = { correct: false, mapping: null, expected, actual: null };
