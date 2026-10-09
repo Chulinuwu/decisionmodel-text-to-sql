@@ -390,3 +390,10 @@ test('named Thai months parse into month periods and swallow their inner year', 
   const kinds = extractSlots('มีออเดอร์ไหนยอดสูงผิดปกติในเดือน พ.ย. 2017 บ้าง', schema, buildCatalog(schema)).map(slot => `${slot.kind}:${slot.text}`);
   assert.deepEqual(kinds, ['period:พ.ย. 2017']);
 });
+
+test('a clear leader below the accept bar is answered directly with the runner-up kept as an alternative', async t => {
+  mockDecisions(t, { target: { revenue: 0.9 }, operation: { total: 0.5, maximum: 0.4 }, group1: { month_purchase: 0.9 }, order: { value_desc: 0.9 }, limit: { one: 0.9 }, slot_0: { a_purchase: 0.9 }, rank: { r_0: 0.49, r_1: 0.11, none: 0.4 } });
+  const result = await planQuestion('ยอดขายปี 2017 เดือนไหนขายดีสุดอะ', schema);
+  assert.equal(result.status, 'ok');
+  if (result.status === 'ok') assert.deepEqual([result.chosen.id, ...result.alternatives.map(entry => entry.id)], ['r_0', 'r_1']);
+});

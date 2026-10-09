@@ -59,6 +59,8 @@ export async function planQuestion(question: string, schema: DatabaseSchema, sig
   if (none >= planningLimits.rankNone && none > (best?.p ?? 0)) return unsupported([messages.rankNone, understood].filter(Boolean).join(' '));
   const interpretations = ranked.map(candidate => interpretationFromPlan(candidate.plan, schema, candidate.p, candidate.key));
   const [chosen, ...alternatives] = interpretations;
-  if (best && chosen && best.p >= planningLimits.rankAccept) return { status: 'ok', chosen, alternatives, trace: session.trace, usage: session.usage };
+  // A clear leader over the runner-up is answered directly; the other readings stay one click away as alternatives.
+  const leads = (best?.p ?? 0) >= planningLimits.rankLeadFloor && (best?.p ?? 0) >= planningLimits.rankLeadRatio * (ranked[1]?.p ?? 0);
+  if (best && chosen && (best.p >= planningLimits.rankAccept || leads)) return { status: 'ok', chosen, alternatives, trace: session.trace, usage: session.usage };
   return { status: 'choose', message: messages.choose, interpretations, trace: session.trace, usage: session.usage };
 }
