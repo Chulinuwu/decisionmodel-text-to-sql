@@ -8,7 +8,7 @@ export function DatasetPanel({ state, retry }: DatasetPanelProps) {
   return <aside className="dataset-panel" aria-label="โครงสร้างข้อมูล">
     <div className="dataset-heading"><span className="eyebrow">DATA SOURCE</span><Icon name="database" /></div>
     <h2>Brazilian E-Commerce</h2>
-    <p className="muted small">Olist · ข้อมูลสาธารณะจาก Kaggle</p>
+    <p className="muted small">ข้อมูลสาธารณะจาก Kaggle</p>
     {state.status === 'loading' && <p role="status" className="muted">กำลังอ่านฐานข้อมูล...</p>}
     {state.status === 'error' && <div className="sidebar-error" role="alert"><p>{state.message}</p><button className="text-button" onClick={retry}>ลองเชื่อมต่ออีกครั้ง</button></div>}
     {state.status === 'ready' && <>

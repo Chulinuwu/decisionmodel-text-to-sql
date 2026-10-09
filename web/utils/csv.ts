@@ -14,7 +14,7 @@ export function downloadCsv(columns: string[], rows: Record<string, ResultCell>[
   const url = URL.createObjectURL(new Blob(['\uFEFF', toCsv(columns, rows)], { type: 'text/csv;charset=utf-8;' }));
   const link = document.createElement('a');
   link.href = url;
-  link.download = `olist-result-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `result-${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }

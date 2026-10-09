@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { AppHeader } from '../components/layout/AppHeader';
 import { DatasetPanel } from '../components/layout/DatasetPanel';
 import { QueryComposer } from '../components/layout/QueryComposer';
 import { ChatThread } from '../components/chat/ChatThread';
@@ -11,23 +9,16 @@ import { useQuestionDraft } from '../hooks/useQuestionDraft';
 import { MeterWorkspace } from '../meter/MeterWorkspace';
 
 export function App() {
-  const [domain, setDomain] = useState(window.location.hash === '#meter' ? 'meter' : 'olist');
-  return <><nav aria-label="Dataset" className="examples">
-    <button aria-pressed={domain === 'olist'} onClick={() => { setDomain('olist'); window.location.hash = 'olist'; }}>Olist</button>
-    <button aria-pressed={domain === 'meter'} onClick={() => { setDomain('meter'); window.location.hash = 'meter'; }}>Synthetic meters</button>
-  </nav>{domain === 'meter' ? <MeterWorkspace /> : <OlistWorkspace />}</>;
+  return window.location.hash === '#meter' ? <MeterWorkspace /> : <ChatWorkspace />;
 }
 
-function OlistWorkspace() {
+function ChatWorkspace() {
   const { question, setQuestion, inputRef } = useQuestionDraft();
-  const [showDataset, setShowDataset] = useState(false);
   const { dataset, reloadDataset } = useDataset();
   const chat = useChat();
   const ready = dataset.status === 'ready' && dataset.data.ready;
   return <div className="app-shell">
-    <AppHeader showDataset={showDataset} onToggleDataset={() => setShowDataset(value => !value)} />
-    <div className="workspace"><div id="dataset-sidebar" className={`sidebar-wrap ${showDataset ? 'mobile-open' : ''}`}><DatasetPanel state={dataset} retry={reloadDataset} /></div><main className="chat-main">
-      {chat.turns.length === 0
+    <div className="workspace"><div className="sidebar-wrap"><DatasetPanel state={dataset} retry={reloadDataset} /></div><main className="chat-main">      {chat.turns.length === 0
         ? <ChatWelcome />
         : <div className="chat-toolbar"><button type="button" className="secondary-button" onClick={chat.reset}>เริ่มแชทใหม่</button></div>}
       <ChatThread turns={chat.turns} dataset={dataset.status === 'ready' ? dataset.data : undefined} disabled={!ready || chat.loading} onExecute={chat.execute} onCancel={chat.cancel} onRetry={chat.retry} />

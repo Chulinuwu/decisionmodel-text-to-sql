@@ -4,7 +4,6 @@ import type { AnsweredResponse, ChartData, ChatTurn, ChooseResponse, DatasetStat
 
 export type IconName = 'arrow' | 'database' | 'chart' | 'table' | 'download' | 'copy';
 export type IconProps = { name: IconName };
-export type AppHeaderProps = { showDataset: boolean; onToggleDataset: () => void };
 export type DatasetPanelProps = { state: DatasetState; retry: () => void };
 export type QueryComposerProps = {
   question: string; onChange: (value: string) => void; onSubmit: () => void;
