@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { filterLabels, formatCell, probabilityLabel } from './format';
-import { anomalyPlan, changePlan, monthlyPlan } from '../test/fixtures';
+import { filterLabels, formatCell, numericColumns, probabilityLabel } from './format';
+import { anomalyColumns, anomalyPlan, anomalyRows, changePlan, monthlyPlan } from '../test/fixtures';
 
 test('filter labels render period, membership and value-less null predicates', () => {
   assert.deepEqual(filterLabels(monthlyPlan), [
@@ -27,4 +27,9 @@ test('analysis cells format score, percent change and booleans', () => {
   assert.equal(formatCell(false, 'is_outlier'), 'ปกติ');
   assert.equal(formatCell(true, 'other'), 'ใช่');
   assert.equal(formatCell(null, 'pct_change'), 'NULL');
+});
+
+test('numeric columns are the ones whose every non-null cell parses as a number', () => {
+  const rows = [...anomalyRows(true), { items_seller_state: null, value: null, baseline: 'n/a', score: '1', is_outlier: false }];
+  assert.deepEqual([...numericColumns({ columns: anomalyColumns, rows })], ['value', 'score']);
 });

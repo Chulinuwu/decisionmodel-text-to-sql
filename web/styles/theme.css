@@ -1,23 +1,70 @@
 :root {
-  --accent: #2563eb;
-  --accent-strong: #1d4ed8;
-  --accent-soft: #eff6ff;
-  --accent-border: #bfdbfe;
-  --ink: #1e293b;
-  --ink-subtle: #475569;
-  --muted: #52647a;
-  --text-soft: #64748b;
-  --border: #dbe3ef;
-  --surface: #fff;
-  --surface-soft: #f8faff;
-  --surface-hover: #f1f5fb;
-  --warning: #8a5b16;
-  --warning-soft: #fff8eb;
-  --error: #9f3434;
-  --error-soft: #fff5f5;
-  --error-border: #fecaca;
-  --code-bg: #15243d;
-  --code-ink: #dbeafe;
-  --shadow: #1d4ed80a;
-  --shadow-focus: #2563eb14;
+  color-scheme: light dark;
+  --font-sans: 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --bg: #f9fafb;
+  --sidebar: #f2f4f6;
+  --surface: #fdfdfe;
+  --surface-sunken: #f3f5f7;
+  --hover: #eaedf0;
+  --selected: #e2e8ed;
+  --ink: #1b2027;
+  --ink-subtle: #434b55;
+  --muted: #646c77;
+  --border: #e2e5e9;
+  --border-strong: #cdd2d8;
+  --accent: #2e6a8a;
+  --accent-strong: #245672;
+  --accent-ink: #245a77;
+  --accent-soft: #e6eff4;
+  --accent-border: #c3d7e3;
+  --on-accent: #f7fafc;
+  --bubble: #e8edf1;
+  --success: #3d8a5c;
+  --warning: #87580f;
+  --warning-soft: #fbf4e6;
+  --error: #a33a3a;
+  --error-soft: #fbefef;
+  --error-border: #eccaca;
+  --code-bg: #1d232b;
+  --code-ink: #d6dde5;
+  --shadow-raised: 0 1px 2px #1a283812, 0 6px 20px #1a28380d;
+  --shadow-dialog: 0 2px 6px #1a283814, 0 24px 64px #1a283829;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16191d;
+    --sidebar: #1b1f24;
+    --surface: #1f2328;
+    --surface-sunken: #1a1d21;
+    --hover: #272c32;
+    --selected: #2c333b;
+    --ink: #e4e7eb;
+    --ink-subtle: #b8bfc8;
+    --muted: #8e97a2;
+    --border: #2b3037;
+    --border-strong: #3b424b;
+    --accent: #6aa3c4;
+    --accent-strong: #86b7d3;
+    --accent-ink: #8dbcd8;
+    --accent-soft: #1f2d36;
+    --accent-border: #33505f;
+    --on-accent: #0f1519;
+    --bubble: #262c33;
+    --success: #5fae7f;
+    --warning: #d6a457;
+    --warning-soft: #2b2418;
+    --error: #e08585;
+    --error-soft: #2d1d1f;
+    --error-border: #573035;
+    --code-bg: #111418;
+    --code-ink: #d6dde5;
+    --shadow-raised: 0 1px 2px #05080b4d, 0 8px 24px #05080b40;
+    --shadow-dialog: 0 24px 64px #05080b80;
+  }
 }

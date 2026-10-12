@@ -11,7 +11,7 @@ export function ChatConversation({ thread, detail, onChange }: ChatConversationP
   const chat = useChat(thread.database, thread.turns, turns => onChange({ ...thread, turns }));
   const status = databaseStatus(detail);
   return <>
-    {chat.turns.length === 0 && <ChatWelcome />}
+    {chat.turns.length === 0 && <ChatWelcome databaseName={thread.database.name} />}
     <ChatThread turns={chat.turns} dataset={detail.status === 'ready' && detail.data.engine === 'chat' ? detail.data.info : undefined} disabled={status !== 'ready' || chat.loading} onExecute={chat.execute} onCancel={chat.cancel} onRetry={chat.retry} />
     {status === 'offline' && <p className="availability-note" role="status">รอฐานข้อมูลพร้อมใช้งานก่อนถามข้อมูล</p>}
     <QueryComposer question={question} onChange={setQuestion} inputRef={inputRef} placeholder={thread.database.placeholder} onSubmit={() => { chat.ask(question.trim()); setQuestion(''); }} loading={chat.loading} disabled={status !== 'ready'} />

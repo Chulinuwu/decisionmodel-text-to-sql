@@ -22,13 +22,14 @@ export function App() {
         connectedId={active.database.id} detailOf={detailOf} onConnect={connect} onBrowse={setBrowsing} />
     </div>
     <main className="chat-main">
-      <button type="button" className="secondary-button sidebar-toggle" aria-controls="sidebar" aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(value => !value)}>
+      <button type="button" className="sidebar-toggle" aria-controls="sidebar" aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(value => !value)}>
         <Icon name={sidebarOpen ? 'close' : 'menu'} />{active.database.name}
       </button>
       {isChatThread(active)
         ? <ChatConversation key={active.id} thread={active} detail={detail} onChange={update} />
         : <MeterConversation key={active.id} thread={active} detail={detail} onChange={update} />}
     </main>
+    {sidebarOpen && <div className="sidebar-scrim" aria-hidden="true" onClick={() => setSidebarOpen(false)} />}
     {browsing && <DatabaseDialog database={browsing} detail={detailOf(browsing.id)} onRetry={() => reload(browsing)} onClose={() => setBrowsing(null)} />}
   </div>;
 }

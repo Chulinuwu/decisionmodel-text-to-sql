@@ -26,7 +26,7 @@ test('sidebar lists started threads newest first with the active one marked, and
   assert.ok(html.indexOf('Which meters are abnormal today?') < html.indexOf('จำนวนคำสั่งซื้อ'));
   assert.match(html, /class="thread-item active" aria-current="true"><span class="thread-title">Which meters are abnormal today\?/);
   for (const database of databases) assert.ok(html.indexOf(database.name, databasesHeading) > 0 && html.includes(database.description));
-  assert.equal(html.match(/>เชื่อมต่อ</g)?.length, databases.length);
+  assert.equal(html.match(/>เชื่อมต่อ</g)?.length, databases.length - 1);
   assert.equal(html.match(/>ดูข้อมูล</g)?.length, databases.length);
   assert.match(html, /class="database-item connected">.*Synthetic meters.*เชื่อมต่ออยู่/);
   assert.match(html, /status-dot loading/);

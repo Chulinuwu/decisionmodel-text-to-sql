@@ -10,11 +10,11 @@ export function DatabaseList({ connectedId, detailOf, onConnect, onBrowse }: Dat
       const connected = database.id === connectedId;
       return <li key={database.id} className={`database-item${connected ? ' connected' : ''}`}>
         <div className="database-name"><span className={`status-dot ${status}`} title={databaseStatusLabels[status]} /><strong>{database.name}</strong>{connected && <span className="connected-badge">เชื่อมต่ออยู่</span>}</div>
-        <p className="database-description">{database.description}</p>
+        <p className="database-description" title={database.description}>{database.description}</p>
         <span className="sr-only">{databaseStatusLabels[status]}</span>
         <div className="database-actions">
-          <button type="button" className="secondary-button" disabled={connected} onClick={() => onConnect(database)}>เชื่อมต่อ</button>
-          <button type="button" className="secondary-button" onClick={() => onBrowse(database)}>ดูข้อมูล</button>
+          {!connected && <button type="button" className="row-button" onClick={() => onConnect(database)}>เชื่อมต่อ</button>}
+          <button type="button" className="row-button" onClick={() => onBrowse(database)}>ดูข้อมูล</button>
         </div>
       </li>;
     })}

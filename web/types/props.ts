@@ -5,7 +5,8 @@ import type { DatasetInfo, Interpretation, InterpretationPart, QueryResponse, Tr
 import type { DatabaseDetailState, DatabaseEntry } from './database';
 import type { AnsweredResponse, ChartData, ChatThreadRecord, ChatTurn, ChooseResponse, ExecuteInterpretation, ExecuteTurnOffer, MeterThreadRecord, MeterTurn, QueryRequest, ThreadRecord, UnsupportedResponse } from './state';
 
-export type IconName = 'arrow' | 'database' | 'chart' | 'table' | 'download' | 'copy' | 'plus' | 'menu' | 'close';
+export type IconName = 'send' | 'database' | 'chart' | 'table' | 'download' | 'copy' | 'plus' | 'menu' | 'close';
+export type WelcomeProps = { databaseName: string };
 export type IconProps = { name: IconName };
 export type QueryComposerProps = {
   question: string; onChange: (value: string) => void; onSubmit: () => void; placeholder: string;

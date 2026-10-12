@@ -15,7 +15,7 @@ export function MeterConversation({ thread, detail, onChange }: MeterConversatio
   const last = chat.turns.at(-1);
   useEffect(() => { latest.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, [last?.id, last?.reply.status]);
   return <>
-    {chat.turns.length === 0 && <MeterWelcome />}
+    {chat.turns.length === 0 && <MeterWelcome databaseName={thread.database.name} />}
     <ol className="chat-thread" aria-label="บทสนทนา">
       {chat.turns.map(turn => <li key={turn.id} ref={turn === last ? latest : undefined}><MeterTurnItem turn={turn} disabled={status !== 'ready' || chat.loading} onCancel={chat.cancel} onRetry={chat.retry} /></li>)}
     </ol>

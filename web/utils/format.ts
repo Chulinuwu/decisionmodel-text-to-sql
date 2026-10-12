@@ -3,6 +3,7 @@ import type { ResultCell } from '../../shared/schema';
 import { anomalyColumns, booleanLabels, changeColumns, numberLocale, pctDecimals, scoreDecimals } from '../../shared/result-config';
 import { numericValue } from '../../shared/result-cells';
 import { operatorLabels, relativePeriodLabels } from '../config/labels';
+import type { AnsweredResponse } from '../types/state';
 
 // A value import from shared/query-schema would pull zod into the browser bundle, so the kind check uses the label map.
 const isRelativeKind = (text: string): text is RelativePeriodKind => Object.hasOwn(relativePeriodLabels, text);
@@ -31,3 +32,7 @@ export function formatCell(value: ResultCell, column = ''): string {
   if (number !== null && column === changeColumns.pct) return `${number.toLocaleString(numberLocale, { minimumFractionDigits: pctDecimals, maximumFractionDigits: pctDecimals })}%`;
   return typeof value === 'number' ? value.toLocaleString(numberLocale, { maximumFractionDigits: 6 }) : value;
 }
+
+// Right-align a column only when every non-null cell parses as a number, so mixed text columns stay left-aligned.
+export const numericColumns = ({ columns, rows }: Pick<AnsweredResponse, 'columns' | 'rows'>) =>
+  new Set(columns.filter(column => rows.every(row => { const cell = row[column] ?? null; return cell === null || numericValue(cell) !== null; })));
