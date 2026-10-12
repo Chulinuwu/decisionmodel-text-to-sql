@@ -21,7 +21,7 @@ export const securityHeaders = {
 
 export const requestBodyLimit = '4kb';
 // Provider/transport failures whose messages are safe and useful to show verbatim.
-export const providerErrorPattern = /Decisions|OPENROUTER|decision provider|context budget|schema\/context budget|answer-space|Decision call budget|Invalid decision answer|Unknown decision choice/;
+export const providerErrorPattern = /Decisions|COPILOT_API_KEY|Generative decision|context budget|schema\/context budget|answer-space|Decision call budget|Invalid decision answer|Unknown decision choice/;
 // PostgreSQL query_canceled, raised when statement_timeout fires.
 export const statementTimeoutCode = '57014';
 // Nonstandard "client closed request"; the socket is usually gone so this rarely reaches anyone.

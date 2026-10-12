@@ -10,7 +10,7 @@ const previous: MeterPlan = { intent: 'total', period: 'today', resource: 'DI Wa
 const defaults = { support: 'supported', continuity: 'fresh', operation_change: 'change', intent: 'total', period: 'today', resource: 'all', building: 'all', floor: 'all', limit: 'v_10', staleMinutes: 'v_60' };
 function stub(overrides: Record<string, string> = {}, probability = 1) {
   return async (_state: string, questions: Record<string, Question>): Promise<DecisionResponse> => ({
-    id: 'stub', model: 'cloudflare/clef-flash', provider: 'Cloudflare', usage: { input_tokens: 10, output_tokens: 0, cost: 0 },
+    model: 'stub', provider: 'stub', usage: { input_tokens: 10, output_tokens: 0, cost: 0 },
     answers: Object.fromEntries(Object.entries({ ...defaults, ...overrides }).filter(([key]) => key in questions).map(([key, choice]) => {
       assert.ok(choice in questions[key].criteria, `${key}: ${choice}`);
       return [key, { type: 'choice', choice, probabilities: { [choice]: probability, ...(probability < 1 ? { unsupported: 1 - probability } : {}) } }];

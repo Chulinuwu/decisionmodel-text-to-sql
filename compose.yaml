@@ -39,7 +39,7 @@ services:
     build: .
     environment:
       <<: *database-env
-      OPENROUTER_KEY: ${OPENROUTER_KEY:?Set OPENROUTER_KEY in .env or the host environment}
+      COPILOT_API_KEY: ${COPILOT_API_KEY:?Set COPILOT_API_KEY in .env or the host environment}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
     ports:
       - "${APP_PORT:-4317}:4317"

@@ -36,7 +36,7 @@ export async function validateMeterScenario(scenario: MeterScenario, split: stri
     answers[key] = { type: 'choice', choice: scenario.labels[key], probabilities };
     decisions[key] = probabilities;
   }
-  const parsed = await planMeterQuestion(scenario.question, context, scenario.previous, undefined, async () => ({ id: 'synthetic-gold', model: 'cloudflare/clef-flash', provider: 'Cloudflare', answers, usage: { input_tokens: 0, output_tokens: 0, cost: 0 } }));
+  const parsed = await planMeterQuestion(scenario.question, context, scenario.previous, undefined, async () => ({ model: 'synthetic-gold', provider: 'synthetic-gold', answers, usage: { input_tokens: 0, output_tokens: 0, cost: 0 } }));
   assert.equal(parsed.status, scenario.plan === null ? 'clarify' : 'ok', scenario.question);
   if (parsed.status === 'ok') assert.deepEqual(parsed.plan, scenario.plan);
   const result = scenario.plan === null ? null : await executeMeterPlan(scenario.plan, { asOf: context.asOf, timezone: context.timezone }, execute);

@@ -1,10 +1,11 @@
 import { allowedHosts, env } from './env.js';
 
 export const config = {
-  model: 'cloudflare/clef-flash',
-  provider: 'Cloudflare',
-  providerSlug: 'cloudflare',
-  decisionsUrl: 'https://openrouter.ai/api/alpha/decisions',
+  model: 'LiquidAI/d1-3B',
+  provider: 'Copilot',
+  decisionsUrl: 'https://copilot.tomastc.com/api/llm/v1/systemone',
+  maxChoices: 37,
+  maxQuestionsPerCall: 64,
   host: env.HOST,
   port: env.PORT,
   allowedHosts: allowedHosts(env.ALLOWED_HOSTS, env.HOST, env.PORT),

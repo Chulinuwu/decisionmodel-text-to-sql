@@ -16,15 +16,15 @@ npm run build
 npm start
 ```
 
-Set `OPENROUTER_KEY` in `.env`, then open http://localhost:4317/#meter. The fixture contains 15 synthetic meters and 33,439 readings, anchored at 2026-10-09 12:00 Asia/Bangkok. It is not connected to a real facility. Cloudflare-only routing and disabled provider fallbacks are preserved.
+Set `COPILOT_API_KEY` in `.env`, then open http://localhost:4317/#meter. The fixture contains 15 synthetic meters and 33,439 readings, anchored at 2026-10-09 12:00 Asia/Bangkok. It is not connected to a real facility.
 
-Validation on the integrated code: 147 tests passed with `METER_DB_TEST=1 npm test`, build passed, and the actual Cloudflare harness passed 17/17 English/Thai regression cases. These are regression results, not an independent generalization benchmark. Physical causes of spikes remain unknown; the harness reports measured contributors. See [meter harness](docs/meter-harness.md) and [evaluation evidence](docs/meter-validation.json).
+Validation on the integrated code: 147 tests passed with `METER_DB_TEST=1 npm test`, build passed, and the live harness passed 17/17 (measured with Clef Flash on OpenRouter, before the switch to d1-3B) English/Thai regression cases. These are regression results, not an independent generalization benchmark. Physical causes of spikes remain unknown; the harness reports measured contributors. See [meter harness](docs/meter-harness.md) and [evaluation evidence](docs/meter-validation.json).
 
 [Text2SQL-Decisions on Hugging Face](https://huggingface.co/datasets/Chulinz/Text2SQL-Decisions) includes a separate English-only `meter` configuration with 3,081 synthetic examples, alongside 25,000 default SQL-plan-selection examples. The contracts differ; do not concatenate them unchanged. Run `npm run meter:dataset` to generate meter decisions locally. See [dataset documentation](docs/meter-dataset.md).
 
 ## Olist workspace
 
-The original workspace covers the public Kaggle Olist Brazilian e-commerce dataset (2016 to 2018). A user asks a question in Thai or English. Cloudflare Clef Flash, called through the OpenRouter Decisions API, scores a fixed set of multiple-choice questions about it. Code turns those scores into complete candidate query plans, compiles each plan into parameterized PostgreSQL, and asks Clef once more to rank the candidates. The web app shows the result rows, the SQL and parameters, the interpretation in plain Thai, other plausible interpretations and the decision probabilities.
+The original workspace covers the public Kaggle Olist Brazilian e-commerce dataset (2016 to 2018). A user asks a question in Thai or English. LiquidAI d1-3B, called through the Copilot gateway SystemOne endpoint, scores a fixed set of multiple-choice questions about it. Code turns those scores into complete candidate query plans, compiles each plan into parameterized PostgreSQL, and asks Clef once more to rank the candidates. The web app shows the result rows, the SQL and parameters, the interpretation in plain Thai, other plausible interpretations and the decision probabilities.
 
 The model never writes SQL. Every query is produced by a deterministic compiler from a typed plan and runs read-only.
 
@@ -60,7 +60,7 @@ Revenue means item price in BRL excluding freight, with all order statuses inclu
 
 ## What Clef does and does not do
 
-Clef Flash answers only the Decisions API question types: `choice` (a probability per option the code supplies), `noul` (a yes/no probability) and `score`. Responses must identify Cloudflare and report zero output tokens; there is no chat completion and no generative fallback.
+d1-3B answers only SystemOne question types: `choice` (a probability per option the code supplies, at most 37 options), `noul` (a yes/no probability) and `score`. Responses must report zero output tokens; there is no chat completion and no generative fallback.
 
 - It chooses among options; it never writes SQL or free text.
 - It cannot read query results, reason over intermediate results, investigate causes ("why did sales drop") or chain follow-up queries. Cause questions are refused with an explanation.
@@ -75,7 +75,7 @@ See [docs/known-issues.md](docs/known-issues.md) for observed accuracy problems,
 
 ## Running locally (npm)
 
-Requires Node 22.22+, Python 3 and Docker. Put `OPENROUTER_KEY` in `.env` (see `.env.example`); `.env` is ignored by Git and Docker and the key never reaches the browser.
+Requires Node 22.22+, Python 3 and Docker. Put `COPILOT_API_KEY` in `.env` (see `.env.example`); `.env` is ignored by Git and Docker and the key never reaches the browser.
 
 ```sh
 npm install
@@ -88,14 +88,14 @@ Open http://localhost:4317. Postgres binds 127.0.0.1:5547. `docker compose stop 
 ## Running with Docker Compose
 
 ```sh
-OPENROUTER_KEY=... docker compose up -d --build
+COPILOT_API_KEY=... docker compose up -d --build
 ```
 
-Compose starts `postgres`, then a one-shot `setup` service (downloads the Kaggle ZIP into a volume and imports it; the first boot takes a few minutes), then `app` once setup has completed successfully. `OPENROUTER_KEY` is required at runtime only; it is not baked into the image.
+Compose starts `postgres`, then a one-shot `setup` service (downloads the Kaggle ZIP into a volume and imports it; the first boot takes a few minutes), then `app` once setup has completed successfully. `COPILOT_API_KEY` is required at runtime only; it is not baked into the image.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `OPENROUTER_KEY` | none, required | Decisions API key, passed to `app` at runtime |
+| `COPILOT_API_KEY` | none, required | Decisions API key, passed to `app` at runtime |
 | `APP_PORT` | `4317` | Host port published for the app |
 | `DB_PUBLISH_PORT` | `5547` | Host port (127.0.0.1 only) published for Postgres |
 | `ALLOWED_HOSTS` | `*` in Compose; `localhost:PORT,HOST:PORT` otherwise | Comma-separated allowed `Host` values; `*` disables the Host/Origin allowlist for public hosting |
@@ -135,10 +135,10 @@ Round 3 (analysis kinds), same pipeline, 2 decision calls per question. Built-in
 - Errors are short JSON messages without stack traces: 400 invalid input or plan, 404 expired offer, 422 analysis not applicable, 429 busy, 502 provider failure, 504 timeout.
 - Database access uses the SELECT-only `analyst` role, read-only transactions and a statement timeout. Raw tables and writes are denied. Data-modification questions are refused before planning.
 - Environment variables are validated at startup; invalid values stop the server and only the variable names are reported.
-- The OpenRouter key exists only in the runtime environment.
+- The Copilot key exists only in the runtime environment.
 
 ## Data source and license
 
 All nine source CSVs are imported: 99,441 orders, 112,650 items, 99,441 customer address identities, 32,951 products, 3,095 sellers, 103,886 payments, 99,224 reviews, 1,000,163 geolocation observations and 71 category translations. The ZIP SHA256 is `967e41e04fc306fe604e2a693f488995a8b41e5047418f8a5c8e4abd6deca784`, recorded in `data/download.json` and the import manifest. Downloads resume partial files, check ZIP integrity and rename atomically. Imports use CSV COPY in one transaction with an advisory lock, checksum idempotency and row-count and financial conservation checks; a failure rolls back.
 
-Sources: [Kaggle Olist dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), licensed CC BY-NC-SA 4.0; [Clef Flash model](https://openrouter.ai/cloudflare/clef-flash); [OpenRouter Decisions API](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request).
+Sources: [Kaggle Olist dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), licensed CC BY-NC-SA 4.0; [Copilot API](https://copilot.tomastc.com/api-docs.md).

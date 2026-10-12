@@ -15,9 +15,9 @@ const requestSchema = z.object({ questions: z.record(z.string(), z.object({ type
 const defaults = ['none', 'not_filter', 'default'];
 
 function mockDecisions(t: TestContext, script: Scripted) {
-  const key = process.env.OPENROUTER_KEY;
-  process.env.OPENROUTER_KEY = 'test-placeholder';
-  t.after(() => { if (key === undefined) delete process.env.OPENROUTER_KEY; else process.env.OPENROUTER_KEY = key; });
+  const key = process.env.COPILOT_API_KEY;
+  process.env.COPILOT_API_KEY = 'test-placeholder';
+  t.after(() => { if (key === undefined) delete process.env.COPILOT_API_KEY; else process.env.COPILOT_API_KEY = key; });
   const requests: z.infer<typeof requestSchema>[] = [];
   t.mock.method(globalThis, 'fetch', async (_url: unknown, init?: RequestInit) => {
     const request = requestSchema.parse(JSON.parse(typeof init?.body === 'string' ? init.body : '{}'));
@@ -31,7 +31,7 @@ function mockDecisions(t: TestContext, script: Scripted) {
       const choice = Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0]?.[0] ?? fallback;
       return [id, { type: 'choice', choice, probabilities }];
     }));
-    return new Response(JSON.stringify({ id: 'test', model: config.model, provider: config.provider, answers, usage: { input_tokens: 1, output_tokens: 0, cost: 0 } }), { status: 200 });
+    return new Response(JSON.stringify({ model: config.model, answers, usage: { input_tokens: 1, output_tokens: 0 } }), { status: 200 });
   });
   return requests;
 }
@@ -157,21 +157,25 @@ test('list targets ask a detail call and select requested columns with sorting',
 });
 
 test('provider failures still throw instead of becoming interpretation outcomes', async t => {
-  const key = process.env.OPENROUTER_KEY;
-  process.env.OPENROUTER_KEY = 'test-placeholder';
-  t.after(() => { if (key === undefined) delete process.env.OPENROUTER_KEY; else process.env.OPENROUTER_KEY = key; });
+  const key = process.env.COPILOT_API_KEY;
+  process.env.COPILOT_API_KEY = 'test-placeholder';
+  t.after(() => { if (key === undefined) delete process.env.COPILOT_API_KEY; else process.env.COPILOT_API_KEY = key; });
   t.mock.method(globalThis, 'fetch', async () => new Response('{}', { status: 500 }));
   await assert.rejects(planQuestion('How many orders?', schema), /Decisions API returned HTTP 500/);
 });
 
-test('decision requests pin the expected provider so OpenRouter cannot reroute them', async t => {
-  const key = process.env.OPENROUTER_KEY;
-  process.env.OPENROUTER_KEY = 'test-placeholder';
-  t.after(() => { if (key === undefined) delete process.env.OPENROUTER_KEY; else process.env.OPENROUTER_KEY = key; });
-  const bodies: unknown[] = [];
-  t.mock.method(globalThis, 'fetch', async (_url: unknown, init?: RequestInit) => { bodies.push(JSON.parse(String(init?.body))); return new Response('{}', { status: 500 }); });
+test('decision requests go to the gateway with the API key and no provider routing', async t => {
+  const key = process.env.COPILOT_API_KEY;
+  process.env.COPILOT_API_KEY = 'test-placeholder';
+  t.after(() => { if (key === undefined) delete process.env.COPILOT_API_KEY; else process.env.COPILOT_API_KEY = key; });
+  const calls: { url: unknown; init?: RequestInit }[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: unknown, init?: RequestInit) => { calls.push({ url, init }); return new Response('{}', { status: 500 }); });
   await assert.rejects(planQuestion('How many orders?', schema));
-  assert.deepEqual(z.object({ provider: z.unknown() }).parse(bodies[0]).provider, { only: [config.providerSlug], allow_fallbacks: false });
+  assert.equal(calls[0]?.url, config.decisionsUrl);
+  assert.equal(new Headers(calls[0]?.init?.headers).get('x-api-key'), 'test-placeholder');
+  const body = z.object({ model: z.string() }).passthrough().parse(JSON.parse(String(calls[0]?.init?.body)));
+  assert.equal(body.model, config.model);
+  assert.ok(!('provider' in body));
 });
 
 test('a year bucket fixed by a same-year filter and an implied not_null collapse into one plain count', async t => {
