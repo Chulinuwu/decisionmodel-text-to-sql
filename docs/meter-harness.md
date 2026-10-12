@@ -1,6 +1,6 @@
 # Synthetic meter harness
 
-Import with `npm run meter:import`, then build/start normally and open `/#meter`.
+Import with `npm run meter:import`, then build/start normally and connect Synthetic meters from the sidebar.
 The Olist workspace remains available. The meter workspace uses a separate
 `metering` schema and a server-owned frozen clock, 2026-10-09 12:00 Asia/Bangkok.
 All 15 meters and their readings are synthetic; this is not a live facility.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Two experimental question-answering workspaces use Clef Flash decisions and deterministic, read-only PostgreSQL compilers: Olist e-commerce and synthetic utility meters. Switch workspaces in the browser; open `/#meter` for meters.
+Two experimental question-answering workspaces use Clef Flash decisions and deterministic, read-only PostgreSQL compilers: Olist e-commerce and synthetic utility meters. Pick a database in the browser sidebar and press เชื่อมต่อ to chat with it.
 
 ## Synthetic meter workspace
 
@@ -16,7 +16,7 @@ npm run build
 npm start
 ```
 
-Set `COPILOT_API_KEY` in `.env`, then open http://localhost:4317/#meter. The fixture contains 15 synthetic meters and 33,439 readings, anchored at 2026-10-09 12:00 Asia/Bangkok. It is not connected to a real facility.
+Set `COPILOT_API_KEY` in `.env`, then open http://localhost:4317 and connect Synthetic meters from the sidebar. The fixture contains 15 synthetic meters and 33,439 readings, anchored at 2026-10-09 12:00 Asia/Bangkok. It is not connected to a real facility.
 
 Validation on the integrated code: 147 tests passed with `METER_DB_TEST=1 npm test`, build passed, and the live harness passed 17/17 (measured with Clef Flash on OpenRouter, before the switch to d1-3B) English/Thai regression cases. These are regression results, not an independent generalization benchmark. Physical causes of spikes remain unknown; the harness reports measured contributors. See [meter harness](docs/meter-harness.md) and [evaluation evidence](docs/meter-validation.json).
 

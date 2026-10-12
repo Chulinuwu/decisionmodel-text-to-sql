@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { nextMeterContextId } from './conversation';
+import { meterContextOf, nextMeterContextId } from './conversation';
 
 const meta = { question: 'q', trace: [], usage: { input_tokens: 0, output_tokens: 0, cost: 0 }, provider: '' };
 
@@ -12,4 +12,9 @@ test('client replaces or drops a stale meter context instead of resending it', (
   assert.equal(nextMeterContextId('old', ok), 'new');
   assert.equal(nextMeterContextId('old', { ...meta, status: 'clarify', message: 'm', contextReset: true }), undefined);
   assert.equal(nextMeterContextId('old', { ...meta, status: 'clarify', message: 'm', contextReset: false }), 'old');
+
+  const turn = (id: number, response: typeof ok | null) => ({ id, request: { kind: 'question' as const, question: 'q' }, reply: response ? { status: 'done' as const, response } : { status: 'cancelled' as const } });
+  assert.equal(meterContextOf([]), undefined);
+  assert.equal(meterContextOf([turn(1, ok), turn(2, null)]), 'new');
+  assert.equal(meterContextOf([turn(1, { ...ok, contextId: 'first' }), turn(2, ok)]), 'new');
 });

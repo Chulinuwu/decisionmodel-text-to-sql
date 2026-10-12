@@ -1,29 +1,34 @@
-import { DatasetPanel } from '../components/layout/DatasetPanel';
-import { QueryComposer } from '../components/layout/QueryComposer';
-import { ChatThread } from '../components/chat/ChatThread';
-import { ChatWelcome } from '../components/chat/ChatWelcome';
-import { useChat } from '../hooks/useChat';
-import { useDataset } from '../hooks/useDataset';
-import { useQuestionDraft } from '../hooks/useQuestionDraft';
-
-import { MeterWorkspace } from '../meter/MeterWorkspace';
+import { useEffect, useState } from 'react';
+import { ChatConversation } from '../components/chat/ChatConversation';
+import { DatabaseDialog } from '../components/databases/DatabaseDialog';
+import { Icon } from '../components/layout/Icon';
+import { Sidebar } from '../components/layout/Sidebar';
+import { MeterConversation } from '../components/meter/MeterConversation';
+import { useDatabaseDetails } from '../hooks/useDatabaseDetails';
+import { useWorkspace } from '../hooks/useWorkspace';
+import type { DatabaseEntry } from '../types/database';
+import { isChatThread } from '../utils/thread-store';
 
 export function App() {
-  return window.location.hash === '#meter' ? <MeterWorkspace /> : <ChatWorkspace />;
-}
-
-function ChatWorkspace() {
-  const { question, setQuestion, inputRef } = useQuestionDraft();
-  const { dataset, reloadDataset } = useDataset();
-  const chat = useChat();
-  const ready = dataset.status === 'ready' && dataset.data.ready;
-  return <div className="app-shell">
-    <div className="workspace"><div className="sidebar-wrap"><DatasetPanel state={dataset} retry={reloadDataset} /></div><main className="chat-main">      {chat.turns.length === 0
-        ? <ChatWelcome />
-        : <div className="chat-toolbar"><button type="button" className="secondary-button" onClick={chat.reset}>เริ่มแชทใหม่</button></div>}
-      <ChatThread turns={chat.turns} dataset={dataset.status === 'ready' ? dataset.data : undefined} disabled={!ready || chat.loading} onExecute={chat.execute} onCancel={chat.cancel} onRetry={chat.retry} />
-      {!ready && dataset.status !== 'loading' && <p className="availability-note" role="status">รอฐานข้อมูลพร้อมใช้งานก่อนถามข้อมูล</p>}
-      <QueryComposer question={question} onChange={setQuestion} inputRef={inputRef} onSubmit={() => { chat.ask(question.trim()); setQuestion(''); }} loading={chat.loading} disabled={!ready} />
-    </main></div>
+  const { threads, active, connect, newChat, open, update } = useWorkspace();
+  const { detailOf, reload } = useDatabaseDetails();
+  const [browsing, setBrowsing] = useState<DatabaseEntry | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  useEffect(() => setSidebarOpen(false), [active.id]);
+  const detail = detailOf(active.database.id);
+  return <div className={`workspace${sidebarOpen ? ' sidebar-open' : ''}`}>
+    <div className="sidebar-wrap" id="sidebar">
+      <Sidebar threads={threads} activeId={active.id} onOpen={open} onNewChat={newChat}
+        connectedId={active.database.id} detailOf={detailOf} onConnect={connect} onBrowse={setBrowsing} />
+    </div>
+    <main className="chat-main">
+      <button type="button" className="secondary-button sidebar-toggle" aria-controls="sidebar" aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(value => !value)}>
+        <Icon name={sidebarOpen ? 'close' : 'menu'} />{active.database.name}
+      </button>
+      {isChatThread(active)
+        ? <ChatConversation key={active.id} thread={active} detail={detail} onChange={update} />
+        : <MeterConversation key={active.id} thread={active} detail={detail} onChange={update} />}
+    </main>
+    {browsing && <DatabaseDialog database={browsing} detail={detailOf(browsing.id)} onRetry={() => reload(browsing)} onClose={() => setBrowsing(null)} />}
   </div>;
 }

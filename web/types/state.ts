@@ -1,22 +1,33 @@
-import type { DatasetInfo, Interpretation, QueryResponse } from '../../shared/schema';
-
-export type DatasetState =
-  | { status: 'loading' }
-  | { status: 'ready'; data: DatasetInfo }
-  | { status: 'error'; message: string };
+import type { MeterResponse } from '../../shared/meter-api';
+import type { Interpretation, QueryResponse } from '../../shared/schema';
+import type { ChatDatabase, MeterDatabase } from './database';
 
 export type QueryRequest =
   | { kind: 'question'; question: string }
   | { kind: 'execute'; question: string; offerId: string; interpretation: Interpretation };
+export type QuestionRequest = Extract<QueryRequest, { kind: 'question' }>;
 
-export type ChatReply =
+export type Reply<Response> =
   | { status: 'loading' }
-  | { status: 'done'; response: QueryResponse }
+  | { status: 'done'; response: Response }
   | { status: 'error'; message: string }
   | { status: 'cancelled' };
 
 // request is the latest call for this turn: picking an interpretation replaces the question with an execute request.
-export type ChatTurn = { id: number; request: QueryRequest; reply: ChatReply };
+export type Turn<Request extends { question: string }, Response> = { id: number; request: Request; reply: Reply<Response> };
+export type ChatTurn = Turn<QueryRequest, QueryResponse>;
+export type MeterTurn = Turn<QuestionRequest, MeterResponse>;
+export type SendTurn<Request extends { question: string }, Response> =
+  (request: Request, history: Turn<Request, Response>[], signal: AbortSignal) => Promise<Response>;
+
+type ThreadBase = { id: string; createdAt: number };
+export type ChatThreadRecord = ThreadBase & { database: ChatDatabase; turns: ChatTurn[] };
+export type MeterThreadRecord = ThreadBase & { database: MeterDatabase; turns: MeterTurn[] };
+export type ThreadRecord = ChatThreadRecord | MeterThreadRecord;
+// Persisted form keeps only the question, the turn status and the response JSON; the database is re-resolved from the registry.
+export type StoredTurn<Response> = { question: string; status: 'done' | 'error' | 'cancelled'; response?: Response };
+export type StoredThread = ThreadBase & { databaseId: string; turns: StoredTurn<QueryResponse | MeterResponse>[] };
+export type ThreadStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
 export type AnsweredResponse = Extract<QueryResponse, { status: 'ok' }>;
 export type ChooseResponse = Extract<QueryResponse, { status: 'choose' }>;

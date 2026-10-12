@@ -7,6 +7,6 @@ async function request<T>(path: string, signal: AbortSignal, body?: unknown): Pr
   if (!response.ok) throw new Error(`Meter request failed (${response.status}).`);
   return response.json();
 }
-export const fetchMeterDataset = (signal: AbortSignal) => request<MeterDataset>('/api/meter/dataset', signal);
-export const fetchMeterAnswer = (question: string, contextId: string | undefined, signal: AbortSignal) =>
-  request<MeterResponse>('/api/meter/query', signal, { question, contextId });
+export const fetchMeterDataset = (url: string, signal: AbortSignal) => request<MeterDataset>(url, signal);
+export const fetchMeterAnswer = (url: string, question: string, contextId: string | undefined, signal: AbortSignal) =>
+  request<MeterResponse>(url, signal, { question, contextId });

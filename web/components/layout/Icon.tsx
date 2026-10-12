@@ -8,5 +8,8 @@ export function Icon({ name }: IconProps) {
     {name === 'table' && <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18M3 15h18M9 10v10" /></>}
     {name === 'download' && <><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" /></>}
     {name === 'copy' && <><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 8V3H3v13h5" /></>}
+    {name === 'plus' && <path d="M12 5v14M5 12h14" />}
+    {name === 'menu' && <path d="M4 7h16M4 12h16M4 17h16" />}
+    {name === 'close' && <path d="M6 6l12 12M18 6 6 18" />}
   </svg>;
 }

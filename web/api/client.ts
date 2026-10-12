@@ -17,6 +17,6 @@ async function request<T>(url: string, signal: AbortSignal, body?: unknown): Pro
   return response.json();
 }
 
-export const fetchDataset = (signal: AbortSignal) => request<DatasetInfo>('/api/dataset', signal);
-export const fetchQuery = (question: string, signal: AbortSignal) => request<QueryResponse>('/api/query', signal, { question });
-export const fetchExecute = (offerId: string, interpretationId: string, signal: AbortSignal) => request<QueryResponse>('/api/execute', signal, { offerId, interpretationId });
+export const fetchDataset = (url: string, signal: AbortSignal) => request<DatasetInfo>(url, signal);
+export const fetchQuery = (url: string, question: string, signal: AbortSignal) => request<QueryResponse>(url, signal, { question });
+export const fetchExecute = (url: string, offerId: string, interpretationId: string, signal: AbortSignal) => request<QueryResponse>(url, signal, { offerId, interpretationId });

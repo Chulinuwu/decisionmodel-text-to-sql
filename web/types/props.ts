@@ -1,14 +1,30 @@
 import type { RefObject } from 'react';
+import type { MeterDataset, MeterResponse } from '../../shared/meter-api';
+import type { MeterEvidence } from '../../shared/meter-schema';
 import type { DatasetInfo, Interpretation, InterpretationPart, QueryResponse, Trace } from '../../shared/schema';
-import type { AnsweredResponse, ChartData, ChatTurn, ChooseResponse, DatasetState, ExecuteInterpretation, ExecuteTurnOffer, QueryRequest, UnsupportedResponse } from './state';
+import type { DatabaseDetailState, DatabaseEntry } from './database';
+import type { AnsweredResponse, ChartData, ChatThreadRecord, ChatTurn, ChooseResponse, ExecuteInterpretation, ExecuteTurnOffer, MeterThreadRecord, MeterTurn, QueryRequest, ThreadRecord, UnsupportedResponse } from './state';
 
-export type IconName = 'arrow' | 'database' | 'chart' | 'table' | 'download' | 'copy';
+export type IconName = 'arrow' | 'database' | 'chart' | 'table' | 'download' | 'copy' | 'plus' | 'menu' | 'close';
 export type IconProps = { name: IconName };
-export type DatasetPanelProps = { state: DatasetState; retry: () => void };
 export type QueryComposerProps = {
-  question: string; onChange: (value: string) => void; onSubmit: () => void;
+  question: string; onChange: (value: string) => void; onSubmit: () => void; placeholder: string;
   inputRef: RefObject<HTMLTextAreaElement | null>; loading: boolean; disabled: boolean;
 };
+export type SidebarProps = ThreadListProps & DatabaseListProps & { onNewChat: () => void };
+export type ThreadListProps = { threads: ThreadRecord[]; activeId: string; onOpen: (id: string) => void };
+export type DatabaseListProps = {
+  connectedId: string; detailOf: (id: string) => DatabaseDetailState;
+  onConnect: (database: DatabaseEntry) => void; onBrowse: (database: DatabaseEntry) => void;
+};
+export type DatabaseDialogProps = { database: DatabaseEntry; detail: DatabaseDetailState; onRetry: () => void; onClose: () => void };
+export type ChatDatabaseDetailProps = { info: DatasetInfo };
+export type MeterDatabaseDetailProps = { info: MeterDataset };
+export type ChatConversationProps = { thread: ChatThreadRecord; detail: DatabaseDetailState; onChange: (thread: ChatThreadRecord) => void };
+export type MeterConversationProps = { thread: MeterThreadRecord; detail: DatabaseDetailState; onChange: (thread: MeterThreadRecord) => void };
+export type MeterTurnItemProps = { turn: MeterTurn; disabled: boolean; onCancel: () => void; onRetry: (turn: MeterTurn) => void };
+export type MeterAnswerProps = { response: MeterResponse };
+export type MeterEvidenceProps = { evidence: MeterEvidence[] };
 export type LoadingStateProps = { request: QueryRequest; onCancel: () => void };
 export type QueryErrorProps = { request: QueryRequest; message: string; disabled: boolean; onRetry: () => void };
 export type QueryDetailsProps = { response: QueryResponse };
