@@ -33,3 +33,9 @@ test('numeric columns are the ones whose every non-null cell parses as a number'
   const rows = [...anomalyRows(true), { items_seller_state: null, value: null, baseline: 'n/a', score: '1', is_outlier: false }];
   assert.deepEqual([...numericColumns({ columns: anomalyColumns, rows })], ['value', 'score']);
 });
+
+test('decimal numeric strings are shortened while code-like strings keep their digits', () => {
+  assert.equal(formatCell('5.0000000000000000'), '5');
+  assert.equal(formatCell('7.6144212962962963'), '7.6144');
+  assert.equal(formatCell('01310'), '01310');
+});
