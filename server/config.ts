@@ -5,6 +5,7 @@ export const config = {
   provider: 'Copilot',
   decisionsUrl: 'https://copilot.tomastc.com/api/llm/v1/systemone',
   maxChoices: 37,
+  finalistsPerPart: 4,
   maxQuestionsPerCall: 64,
   host: env.HOST,
   port: env.PORT,
