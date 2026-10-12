@@ -41,7 +41,7 @@ summary::-webkit-details-marker { display: none; }
 .database-name strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
 .connected-badge { flex: none; padding: 0 8px; border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 500; line-height: 20px; }
 .database-description { margin: 2px 0 0 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--muted); }
-.database-actions { display: flex; gap: 6px; margin: 8px 0 0 17px; }
+.database-actions { display: flex; align-items: center; gap: 6px; margin: 8px 0 0 17px; }
 .row-button { height: 28px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-subtle); font-size: 13px; font-weight: 500; }
 .row-button:hover { border-color: var(--border-strong); color: var(--ink); }
 .status-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
