@@ -1,4 +1,4 @@
-import type { DatasetInfo, QueryResponse } from '../../shared/schema.js';
+import type { BrowsePage, DatasetInfo, QueryResponse, TableRowsPage } from '../../shared/schema.js';
 import type { MeterDataset, MeterResponse } from '../../shared/meter-api.js';
 
 export type HttpFailure = { status: number; error: string };
@@ -9,4 +9,6 @@ export type AppDependencies = {
   datasetInfo: () => Promise<DatasetInfo>;
   answerMeterQuestion?: (input: { question: string; contextId?: string }, signal: AbortSignal) => Promise<MeterResponse>;
   meterDataset?: () => Promise<MeterDataset>;
+  // relation is always a qualified name from the browse allowlist, never raw request input.
+  tableRows?: (relation: string, page: BrowsePage) => Promise<TableRowsPage>;
 };

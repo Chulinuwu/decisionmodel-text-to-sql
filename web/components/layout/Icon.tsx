@@ -11,5 +11,6 @@ export function Icon({ name }: IconProps) {
     {name === 'plus' && <path d="M12 5v14M5 12h14" />}
     {name === 'menu' && <path d="M4 7h16M4 12h16M4 17h16" />}
     {name === 'close' && <path d="M6 6l12 12M18 6 6 18" />}
+    {name === 'back' && <path d="M19 12H5m6-6-6 6 6 6" />}
   </svg>;
 }

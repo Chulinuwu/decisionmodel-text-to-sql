@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ChatDatabaseDetailProps } from '../../types/props';
 import { numberLocale } from '../../../shared/result-config';
 
-export function ChatDatabaseDetail({ info }: ChatDatabaseDetailProps) {
+export function ChatDatabaseDetail({ info, onBrowseRows }: ChatDatabaseDetailProps) {
   const [search, setSearch] = useState('');
   return <div className="detail-grid">
     <section className="detail-summary" aria-label="ภาพรวมข้อมูล">
@@ -26,6 +26,7 @@ export function ChatDatabaseDetail({ info }: ChatDatabaseDetailProps) {
           <summary><span>{relation.name}</span><span className="row-count">{info.tables.find(table => table.name === relation.name)?.rows.toLocaleString(numberLocale) ?? relation.columns.length}</span></summary>
           <p className="relation-description">{relation.description}</p>
           <p className="grain"><strong>1 แถว:</strong> {relation.grain}</p>
+          <button type="button" className="row-button relation-browse" onClick={() => onBrowseRows(relation.name)}>ดูแถวข้อมูล</button>
           <ul className="column-list">{relation.columns.map(column => <li key={column.name}><div><code>{column.name}</code><span>{column.type}{column.nullable ? ' · null' : ''}</span></div><p>{column.description}</p>{column.values.length > 0 && <small>{column.values.join(', ')}</small>}</li>)}</ul>
         </details>)}
       </div>

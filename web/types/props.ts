@@ -1,11 +1,11 @@
 import type { RefObject } from 'react';
 import type { MeterDataset, MeterResponse } from '../../shared/meter-api';
 import type { MeterEvidence } from '../../shared/meter-schema';
-import type { DatasetInfo, Interpretation, InterpretationPart, QueryResponse, Trace } from '../../shared/schema';
-import type { DatabaseDetailState, DatabaseEntry } from './database';
+import type { DatasetInfo, Interpretation, InterpretationPart, QueryResponse, TableRowsPage, Trace } from '../../shared/schema';
+import type { DatabaseDetailState, DatabaseEntry, TableRowsState } from './database';
 import type { AnsweredResponse, ChartData, ChatThreadRecord, ChatTurn, ChooseResponse, ExecuteInterpretation, ExecuteTurnOffer, MeterThreadRecord, MeterTurn, QueryRequest, ThreadRecord, UnsupportedResponse } from './state';
 
-export type IconName = 'send' | 'database' | 'chart' | 'table' | 'download' | 'copy' | 'plus' | 'menu' | 'close';
+export type IconName = 'send' | 'database' | 'chart' | 'table' | 'download' | 'copy' | 'plus' | 'menu' | 'close' | 'back';
 export type WelcomeProps = { databaseName: string };
 export type IconProps = { name: IconName };
 export type QueryComposerProps = {
@@ -19,8 +19,11 @@ export type DatabaseListProps = {
   onConnect: (database: DatabaseEntry) => void; onBrowse: (database: DatabaseEntry) => void;
 };
 export type DatabaseDialogProps = { database: DatabaseEntry; detail: DatabaseDetailState; onRetry: () => void; onClose: () => void };
-export type ChatDatabaseDetailProps = { info: DatasetInfo };
-export type MeterDatabaseDetailProps = { info: MeterDataset };
+export type ChatDatabaseDetailProps = { info: DatasetInfo; onBrowseRows: (table: string) => void };
+export type MeterDatabaseDetailProps = { info: MeterDataset; tables: readonly string[]; onBrowseRows: (table: string) => void };
+export type TableBrowserProps = { tablesUrl: string; table: string; totalRows?: number; onBack: () => void };
+export type TableRowsGridProps = { table: string; page: TableRowsPage };
+export type TableRowsViewProps = Omit<TableBrowserProps, 'tablesUrl'> & { state: TableRowsState; onPrevious: () => void; onNext: () => void; onRetry: () => void };
 export type ChatConversationProps = { thread: ChatThreadRecord; detail: DatabaseDetailState; onChange: (thread: ChatThreadRecord) => void };
 export type MeterConversationProps = { thread: MeterThreadRecord; detail: DatabaseDetailState; onChange: (thread: MeterThreadRecord) => void };
 export type MeterTurnItemProps = { turn: MeterTurn; disabled: boolean; onCancel: () => void; onRetry: (turn: MeterTurn) => void };

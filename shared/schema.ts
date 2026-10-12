@@ -1,9 +1,15 @@
 import { z } from 'zod';
 import type { DatabaseSchema, Plan } from './query-schema.js';
+import { browseRowLimits } from './limits.js';
 
 export { queryPlanSchema, type Plan } from './query-schema.js';
 export const questionSchema = z.object({ question: z.string().trim().min(3).max(600) }).strict();
 export const executeSchema = z.object({ offerId: z.string().regex(/^[a-f0-9]{32}$/), interpretationId: z.string().regex(/^[a-z0-9_]{1,16}$/) }).strict();
+export const browsePageSchema = z.object({
+  offset: z.coerce.number().int().min(0).max(browseRowLimits.maxOffset).default(0),
+  limit: z.coerce.number().int().min(1).max(browseRowLimits.max).default(browseRowLimits.default),
+}).strict();
+export type BrowsePage = z.infer<typeof browsePageSchema>;
 export type Trace = { id: string; stage: string; label: string; choice: string; probability: number; confidence?: number; alternatives: { choice: string; probability: number }[] };
 // PostgreSQL booleans (anomaly is_outlier) arrive as JS booleans; numerics arrive as strings.
 export type ResultCell = string | number | boolean | null;
@@ -25,3 +31,4 @@ export type DatasetInfo = {
   minDate: string; maxDate: string; tables: { name: string; rows: number }[];
   schema: DatabaseSchema; ready: boolean;
 };
+export type TableRowsPage = BrowsePage & { columns: string[]; rows: Record<string, ResultCell>[]; hasMore: boolean };

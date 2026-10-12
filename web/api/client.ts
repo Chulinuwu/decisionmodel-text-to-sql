@@ -1,4 +1,5 @@
-import type { DatasetInfo, QueryResponse } from '../../shared/schema';
+import { browseRowLimits } from '../../shared/limits';
+import type { DatasetInfo, QueryResponse, TableRowsPage } from '../../shared/schema';
 
 async function request<T>(url: string, signal: AbortSignal, body?: unknown): Promise<T> {
   const response = await fetch(url, {
@@ -20,3 +21,5 @@ async function request<T>(url: string, signal: AbortSignal, body?: unknown): Pro
 export const fetchDataset = (url: string, signal: AbortSignal) => request<DatasetInfo>(url, signal);
 export const fetchQuery = (url: string, question: string, signal: AbortSignal) => request<QueryResponse>(url, signal, { question });
 export const fetchExecute = (url: string, offerId: string, interpretationId: string, signal: AbortSignal) => request<QueryResponse>(url, signal, { offerId, interpretationId });
+export const fetchTableRows = (tablesUrl: string, table: string, offset: number, signal: AbortSignal) =>
+  request<TableRowsPage>(`${tablesUrl}/${encodeURIComponent(table)}/rows?offset=${offset}&limit=${browseRowLimits.default}`, signal);

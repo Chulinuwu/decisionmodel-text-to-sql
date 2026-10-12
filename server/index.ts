@@ -7,7 +7,8 @@ import { executeInterpretation } from './query/execute-interpretation.js';
 
 import { answerMeterQuestion } from './meter/answer-question.js';
 import { getMeterDataset } from './meter/data.js';
-const app = createApp({ answerQuestion, executeInterpretation, datasetInfo: cachedDatasetInfo, answerMeterQuestion, meterDataset: getMeterDataset });
+import { tableRows } from './browse/table-rows.js';
+const app = createApp({ answerQuestion, executeInterpretation, datasetInfo: cachedDatasetInfo, answerMeterQuestion, meterDataset: getMeterDataset, tableRows });
 const server = app.listen(config.port, config.host, () => console.log(`Decision SQL running at http://localhost:${config.port}`));
 async function shutdown() { server.close(); await pool.end(); process.exit(0); }
 process.on('SIGTERM', shutdown);

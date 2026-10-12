@@ -12,6 +12,9 @@ export const httpMessages = {
   timeout: 'ใช้เวลานานเกินกำหนดค่ะ กรุณาลองใหม่ หรือถามให้แคบลง',
   canceled: 'ยกเลิกคำขอแล้วค่ะ',
   failed: 'ประมวลผลไม่สำเร็จค่ะ กรุณาลองใหม่ หรือดูสถานะฐานข้อมูล',
+  tableNotFound: 'ไม่พบตารางนี้ค่ะ',
+  invalidPage: 'ช่วงแถวที่ขอไม่ถูกต้องค่ะ',
+  rowsUnavailable: 'อ่านแถวข้อมูลไม่สำเร็จค่ะ กรุณาลองใหม่',
 };
 
 export const securityHeaders = {

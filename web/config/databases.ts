@@ -14,7 +14,7 @@ const brazilianEcommerce: ChatDatabase = {
   ],
   placeholder: 'เช่น จำนวนคำสั่งซื้อแยกตามรัฐของลูกค้าในปี 2017',
   engine: 'chat',
-  endpoints: { detail: '/api/dataset', query: '/api/query', execute: '/api/execute' },
+  endpoints: { detail: '/api/dataset', query: '/api/query', execute: '/api/execute', tables: '/api/databases/brazilian-ecommerce/tables' },
 };
 
 export const databases: readonly DatabaseEntry[] = [
@@ -27,7 +27,8 @@ export const databases: readonly DatabaseEntry[] = [
     examples: meterExamples.slice(0, 4),
     placeholder: `เช่น ${meterExamples[0]}`,
     engine: 'meter',
-    endpoints: { detail: '/api/meter/dataset', query: '/api/meter/query' },
+    endpoints: { detail: '/api/meter/dataset', query: '/api/meter/query', tables: '/api/databases/synthetic-meters/tables' },
+    tables: ['meters', 'readings'],
   },
 ];
 

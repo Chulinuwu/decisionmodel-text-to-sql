@@ -1,7 +1,8 @@
 import express from 'express';
 import path from 'node:path';
 import { config } from '../config.js';
-import { executeSchema, questionSchema } from '../../shared/schema.js';
+import { browsePageSchema, executeSchema, questionSchema } from '../../shared/schema.js';
+import { browseRelation } from '../browse/browse-relation.js';
 import { createConcurrencyGate } from './concurrency-gate.js';
 import { bodyErrorHandler } from './error-mapping.js';
 import { httpMessages, requestBodyLimit } from './http-messages.js';
@@ -31,6 +32,17 @@ export function createApp(dependencies: AppDependencies, staticDirectory = path.
     app.get('/api/meter/dataset', async (_request, response) => {
       try { response.json(await dataset()); }
       catch { response.status(503).json({ error: 'Synthetic meter fixture is not ready.' }); }
+    });
+  }
+  if (dependencies.tableRows) {
+    const tableRows = dependencies.tableRows;
+    app.get('/api/databases/:databaseId/tables/:table/rows', async (request, response) => {
+      const relation = browseRelation(request.params.databaseId, request.params.table);
+      if (!relation) return void response.status(404).json({ error: httpMessages.tableNotFound });
+      const page = browsePageSchema.safeParse(request.query);
+      if (!page.success) return void response.status(400).json({ error: httpMessages.invalidPage });
+      try { response.json(await tableRows(relation, page.data)); }
+      catch { response.status(503).json({ error: httpMessages.rowsUnavailable }); }
     });
   }
   app.get('/', (_request, response) => response.sendFile(path.join(staticDirectory, 'index.html')));
