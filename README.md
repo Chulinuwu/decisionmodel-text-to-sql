@@ -85,6 +85,16 @@ npm start
 
 Open http://localhost:4317. Postgres binds 127.0.0.1:5547. `docker compose stop postgres` stops the database and keeps its volume; `docker compose down -v` deletes the data.
 
+## Running with a self-hosted decision model
+
+`local-model/` serves a D1 Omni 600M decision model on your own machine in the same request format, so the app needs no Copilot key. It accepts up to 255 options per question, so wide questions are sent whole instead of being split. Start it as described in [local-model/README.md](local-model/README.md), then run the app with:
+
+```sh
+DECISIONS_URL=http://127.0.0.1:8790/decisions npm start
+```
+
+The fine-tuned checkpoint published at [Chulinz/d1-omni-600m-olist-sql-decisions](https://huggingface.co/Chulinz/d1-omni-600m-olist-sql-decisions) was trained on this app's decision questions; its card reports how it compares with the hosted models.
+
 ## Running with Docker Compose
 
 ```sh
@@ -103,6 +113,9 @@ Compose starts `postgres`, then a one-shot `setup` service (downloads the Kaggle
 | `DB_ANALYST_PASSWORD` | `local-read-only` | Read-only role used by the app; re-applied on every import |
 | `HOST`, `PORT` | `127.0.0.1`, `4317` (`0.0.0.0` in the image) | Server bind address |
 | `DB_HOST`, `DB_PORT` | `127.0.0.1`, `5547` (`postgres`, `5432` in Compose) | Database address |
+| `DECISIONS_URL` | unset (Copilot gateway) | Self-hosted Decisions endpoint, such as the server in `local-model/`; `https`, or `http` to localhost/127.0.0.1/[::1] only. `COPILOT_API_KEY` is never sent to it |
+| `DECISIONS_MODEL` | `local/d1-omni-600m` when `DECISIONS_URL` is set | Model name sent to the self-hosted endpoint |
+| `DECISIONS_KEY` | unset | Bearer key for `DECISIONS_URL`; only valid together with it |
 
 With `ALLOWED_HOSTS=*` anyone who can reach the published port can use the app and spend decision credits; set an explicit host list or keep the port private if that is not intended.
 

@@ -1,10 +1,12 @@
 import { allowedHosts, env } from './env.js';
 
+// DECISIONS_URL swaps the Copilot gateway for a self-hosted Decisions endpoint such as local-model/; it takes up to 255 options per question.
+const decisions = env.DECISIONS_URL
+  ? { selfHosted: true, model: env.DECISIONS_MODEL ?? 'local/d1-omni-600m', provider: 'Local', decisionsUrl: env.DECISIONS_URL, maxChoices: 255, decisionsKey: env.DECISIONS_KEY }
+  : { selfHosted: false, model: 'LiquidAI/d1-3B', provider: 'Copilot', decisionsUrl: 'https://copilot.tomastc.com/api/llm/v1/systemone', maxChoices: 37, decisionsKey: undefined };
+
 export const config = {
-  model: 'LiquidAI/d1-3B',
-  provider: 'Copilot',
-  decisionsUrl: 'https://copilot.tomastc.com/api/llm/v1/systemone',
-  maxChoices: 37,
+  ...decisions,
   finalistsPerPart: 4,
   maxQuestionsPerCall: 64,
   host: env.HOST,

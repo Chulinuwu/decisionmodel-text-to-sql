@@ -3,12 +3,18 @@ import { gatewayDecisionSchema, type DecisionResponse, type Question } from './d
 import { decisionPayload } from './decision-payload.js';
 import { finalRound, mergeAnswers, splitWideChoices } from './decision-chunking.js';
 
-async function ask(state: string, questions: Record<string, Question>, signal?: AbortSignal) {
+// A self-hosted endpoint gets DECISIONS_KEY or nothing; COPILOT_API_KEY only ever goes to the Copilot gateway.
+function authHeaders(): Record<string, string> {
+  if (config.selfHosted) return config.decisionsKey ? { Authorization: `Bearer ${config.decisionsKey}` } : {};
   const key = process.env.COPILOT_API_KEY;
   if (!key) throw new Error('COPILOT_API_KEY is missing in .env');
+  return { 'x-api-key': key };
+}
+
+async function ask(state: string, questions: Record<string, Question>, signal?: AbortSignal) {
   const response = await fetch(config.decisionsUrl, {
     method: 'POST',
-    headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
+    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
     body: decisionPayload(state, questions),
     signal: AbortSignal.any([AbortSignal.timeout(config.decisionTimeoutMs), ...(signal ? [signal] : [])]),
   });
@@ -29,6 +35,6 @@ export async function decide(state: string, questions: Record<string, Question>,
     if (question.type === 'choice' && answer.type === 'choice' && !(answer.choice in question.criteria)) throw new Error(`Unknown decision choice for ${id}`);
   }
   const inputTokens = first.usage.input_tokens + (final?.usage.input_tokens ?? 0);
-  // The self-hosted gateway reports no provider or cost; the model runs on our own hardware.
+  // Neither endpoint reports a provider or cost we rely on; both run on our own hardware.
   return { model: first.model, provider: config.provider, answers, usage: { input_tokens: inputTokens, output_tokens: 0, cost: 0 } };
 }
