@@ -93,7 +93,7 @@ Open http://localhost:4317. Postgres binds 127.0.0.1:5547. `docker compose stop 
 DECISIONS_URL=http://127.0.0.1:8790/decisions npm start
 ```
 
-The fine-tuned checkpoint published at [Chulinz/d1-omni-600m-olist-sql-decisions](https://huggingface.co/Chulinz/d1-omni-600m-olist-sql-decisions) was trained on this app's decision questions; its card reports how it compares with the hosted models.
+The fine-tuned checkpoint published at [Chulinz/d1-omni-600m-text2sql-decisions](https://huggingface.co/Chulinz/d1-omni-600m-text2sql-decisions) was trained on this app's decision questions; its card reports how it compares with the hosted models.
 
 ## Running with Docker Compose
 

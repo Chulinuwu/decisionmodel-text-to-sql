@@ -10,8 +10,8 @@ Python 3.12:
 cd local-model
 python -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
-hf download Chulinz/d1-omni-600m-olist-sql-decisions --local-dir models/olist-decisions
-python -m decision_server --model-dir models/olist-decisions --device cpu --port 8790
+hf download Chulinz/d1-omni-600m-text2sql-decisions --local-dir models/text2sql-decisions
+python -m decision_server --model-dir models/text2sql-decisions --device cpu --port 8790
 ```
 
 Use `--device cuda` on an NVIDIA GPU or `--device mps` on Apple silicon. The server listens on `http://127.0.0.1:8790/decisions`; point the app at it with `DECISIONS_URL=http://127.0.0.1:8790/decisions` (see the main README).
